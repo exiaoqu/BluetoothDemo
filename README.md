@@ -1,1 +1,0 @@
-COMPASS DEMO
