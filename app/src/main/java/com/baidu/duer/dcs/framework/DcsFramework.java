@@ -133,8 +133,8 @@ public class DcsFramework {
             for(String key : InterestPoint.INSTANCE.getPoints().keySet()){
                 if( payloadText.contains(key) ){
                     // 根据板子返回数据组合生成 interestedText
-                    int index = new Random().nextInt()%InterestPoint.INSTANCE.getPoints().get(key).size();
-                    interestedText = InterestPoint.INSTANCE.getPoints().get(key).get(index);
+//                    int index = new Random().nextInt()%InterestPoint.INSTANCE.getPoints().get(key).size();
+                    interestedText = InterestPoint.INSTANCE.getPoints().get(key).get(0);
 
                     isInterested = true;
                     break;

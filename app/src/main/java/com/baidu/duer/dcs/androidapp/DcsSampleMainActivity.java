@@ -15,12 +15,16 @@
  */
 package com.baidu.duer.dcs.androidapp;
 
+import android.Manifest;
 import android.app.Activity;
 //import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 //import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.view.View;
 import android.webkit.WebView;
@@ -49,6 +53,9 @@ import com.baidu.duer.dcs.util.CommonUtil;
 import com.baidu.duer.dcs.util.LogUtil;
 import com.baidu.duer.dcs.util.NetWorkUtil;
 import com.baidu.duer.dcs.wakeup.WakeUp;
+import com.compass.tts.TtsModule;
+
+import java.util.ArrayList;
 //import java.io.File;
 
 /**
@@ -74,6 +81,9 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
     private String mHtmlUrl;
     // 唤醒
     private WakeUp wakeUp;
+    //
+    private TtsModule mTtsModule;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,6 +92,11 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
         initView();
         initOauth();
         initFramework();
+        // 初始化权限 和 语音合成单例实例化
+        initPermission();
+        TtsModule.initializeInstance(this);
+        mTtsModule = TtsModule.getInstance();
+        mTtsModule.speak("注意注意，初始化成功！");
     }
 
     private void initView() {
@@ -383,6 +398,36 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
 //            e.printStackTrace();
 //        }
 //    }
+
+        /**
+         * android 6.0 以上需要动态申请权限
+         */
+        private void initPermission() {
+            String[] permissions = {
+                    Manifest.permission.INTERNET,
+                    Manifest.permission.ACCESS_NETWORK_STATE,
+                    Manifest.permission.MODIFY_AUDIO_SETTINGS,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.WRITE_SETTINGS,
+                    Manifest.permission.READ_PHONE_STATE,
+                    Manifest.permission.ACCESS_WIFI_STATE,
+                    Manifest.permission.CHANGE_WIFI_STATE
+            };
+
+            ArrayList<String> toApplyList = new ArrayList<String>();
+
+            for (String perm : permissions) {
+                if (PackageManager.PERMISSION_GRANTED != ContextCompat.checkSelfPermission(this, perm)) {
+                    toApplyList.add(perm);
+                    // 进入到这里代表没有权限.
+                }
+            }
+            String[] tmpList = new String[toApplyList.size()];
+            if (!toApplyList.isEmpty()) {
+                ActivityCompat.requestPermissions(this, toApplyList.toArray(tmpList), 123);
+            }
+
+        }
 
     @Override
     protected void onDestroy() {

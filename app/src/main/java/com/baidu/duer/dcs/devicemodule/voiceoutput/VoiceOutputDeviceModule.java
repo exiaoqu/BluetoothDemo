@@ -51,7 +51,7 @@ public class VoiceOutputDeviceModule extends BaseDeviceModule {
     private final IMediaPlayer mediaPlayer;
     private SpeechState speechState = SpeechState.FINISHED;
     // tts 模块
-    private TtsModule ttsModule = null;
+    private final TtsModule mTsModule = TtsModule.getInstance();
 
     // 上一次的token
     private String lastSpeakToken = "";
@@ -114,10 +114,9 @@ public class VoiceOutputDeviceModule extends BaseDeviceModule {
     @Override
     public void handleInterestDirective(String interestedText){
         // 处理感兴趣的内容，语音提醒
-        if(null == ttsModule){
-            ttsModule = new TtsModule();
+        if(null != mTsModule){
+            mTsModule.speak(interestedText);
         }
-        ttsModule.speak(interestedText);
     }
 
     private IMediaPlayer.IMediaPlayerListener mediaPlayerListener = new IMediaPlayer.SimpleMediaPlayerListener() {
