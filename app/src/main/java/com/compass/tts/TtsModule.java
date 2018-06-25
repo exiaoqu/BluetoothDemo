@@ -27,9 +27,9 @@ public class TtsModule implements SpeechSynthesizerListener {
     private static final String TAG = "TtsModule";
 
     // ================== 初始化参数设置开始 ==========================
-    protected String appId = "11189849";
-    protected String appKey = "yoLqWgEbzNgKKprVT7iSh9YK";
-    protected String secretKey = "cf7fb720d813411714ec85a5429ea75f";
+    private String appId = "11189849";
+    private final String appKey = "yoLqWgEbzNgKKprVT7iSh9YK";
+    private final String secretKey = "cf7fb720d813411714ec85a5429ea75f";
 
 //    protected String appId = "11435804";
 //    protected String appKey = "zLeP3lgbqqZs382iSg1FzOaO";
@@ -54,7 +54,8 @@ public class TtsModule implements SpeechSynthesizerListener {
     // volatile保证了多线程访问时instance变量的可见性，避免了instance初始化时其他变量属性还没赋值完时，被另外线程调用
     private static volatile TtsModule instance;
 
-    private TtsModule(Context context) {
+    private TtsModule(Context context)
+    {
         this.context = context;
         initTTs();
     }
@@ -62,8 +63,6 @@ public class TtsModule implements SpeechSynthesizerListener {
     public static synchronized void initializeInstance(Context context) {
         if (null == instance) {
             instance = new TtsModule(context);
-        }
-    }
 
     public static TtsModule getInstance() {
         return instance;
@@ -282,31 +281,62 @@ public class TtsModule implements SpeechSynthesizerListener {
 
     }
 
-    @Override
-    public void onSynthesizeStart(String s) {
+    /**
+     * 将工程需要的资源文件拷贝到SD卡中使用（授权文件为临时授权文件，请注册正式授权）
+     *
+     * @param isCover 是否覆盖已存在的目标文件
+     * @param source
+     * @param dest
+     */
+    private void copyFromAssetsToSdcard(boolean isCover, String source, String dest) {
+        File file = new File(dest);
+        if (isCover || (!isCover && !file.exists())) {
+            InputStream is = null;
+            FileOutputStream fos = null;
+            try {
+                is = context.getAssets().open(source);
+                String path = dest;
+                fos = new FileOutputStream(path);
+                byte[] buffer = new byte[1024];
+                int size = 0;
+                while ((size = is.read(buffer, 0, 1024)) >= 0) {
+                    fos.write(buffer, 0, size);
+                }
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if (fos != null) {
+                    try {
+                        fos.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                try {
+                    if (is != null) {
+                        is.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     @Override
-    public void onSynthesizeDataArrived(String s, byte[] bytes, int i) {
-    }
-
+    public void onSynthesizeStart(String s) {}
     @Override
-    public void onSynthesizeFinish(String s) {
-    }
-
+    public void onSynthesizeDataArrived(String s, byte[] bytes, int i) {}
     @Override
-    public void onSpeechStart(String s) {
-    }
-
+    public void onSynthesizeFinish(String s) {}
     @Override
-    public void onSpeechProgressChanged(String s, int i) {
-    }
-
+    public void onSpeechStart(String s) {}
     @Override
-    public void onSpeechFinish(String s) {
-    }
-
+    public void onSpeechProgressChanged(String s, int i) {}
     @Override
-    public void onError(String s, SpeechError speechError) {
-    }
+    public void onSpeechFinish(String s) {}
+    @Override
+    public void onError(String s, SpeechError speechError) {}
 }
