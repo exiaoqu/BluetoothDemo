@@ -11,15 +11,6 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-    <!--&lt;!&ndash; speak permission &ndash;&gt;-->
-    <!--<uses-permission android:name="Manifest.permission.INTERNET" />-->
-    <!--<uses-permission android:name="Manifest.permission.ACCESS_NETWORK_STATE" />-->
-    <!--<uses-permission android:name="Manifest.permission.MODIFY_AUDIO_SETTINGS" />-->
-    <!--<uses-permission android:name="Manifest.permission.WRITE_EXTERNAL_STORAGE" />-->
-    <!--<uses-permission android:name="Manifest.permission.WRITE_SETTINGS" />-->
-    <!--<uses-permission android:name="Manifest.permission.READ_PHONE_STATE" />-->
-    <!--<uses-permission android:name="Manifest.permission.ACCESS_WIFI_STATE" />-->
-    <!--<uses-permission android:name="Manifest.permission.CHANGE_WIFI_STATE" />-->
 
     <application
         android:name="com.baidu.duer.dcs.androidapp.DcsSampleApplication"
@@ -36,7 +27,6 @@
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

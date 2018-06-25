@@ -50,12 +50,9 @@ public class VoiceOutputDeviceModule extends BaseDeviceModule {
     // 语音播放的播放器
     private final IMediaPlayer mediaPlayer;
     private SpeechState speechState = SpeechState.FINISHED;
-    // tts 模块
-    private final TtsModule mTsModule = TtsModule.getInstance();
 
     // 上一次的token
     private String lastSpeakToken = "";
-
     // 当前播放状态
     private enum SpeechState {
         PLAYING,
@@ -114,9 +111,7 @@ public class VoiceOutputDeviceModule extends BaseDeviceModule {
     @Override
     public void handleInterestDirective(String interestedText){
         // 处理感兴趣的内容，语音提醒
-        if(null != mTsModule){
-            mTsModule.speak(interestedText);
-        }
+        TtsModule.getInstance().speak(interestedText);
     }
 
     private IMediaPlayer.IMediaPlayerListener mediaPlayerListener = new IMediaPlayer.SimpleMediaPlayerListener() {

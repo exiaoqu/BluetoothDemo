@@ -1,1 +1,1 @@
-compass demo of summer camp
+Compass summer camp

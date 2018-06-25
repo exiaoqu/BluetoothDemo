@@ -17,11 +17,9 @@ package com.baidu.duer.dcs.androidapp;
 
 import android.Manifest;
 import android.app.Activity;
-//import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-//import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -41,49 +39,36 @@ import com.baidu.duer.dcs.devicemodule.screen.message.RenderVoiceInputTextPayloa
 import com.baidu.duer.dcs.devicemodule.voiceinput.VoiceInputDeviceModule;
 import com.baidu.duer.dcs.framework.DcsFramework;
 import com.baidu.duer.dcs.framework.DeviceModuleFactory;
-//import com.baidu.duer.dcs.framework.IResponseListener;
 import com.baidu.duer.dcs.http.HttpConfig;
 import com.baidu.duer.dcs.oauth.api.IOauth;
 import com.baidu.duer.dcs.oauth.api.OauthImpl;
-//import com.baidu.duer.dcs.systeminterface.IMediaPlayer;
 import com.baidu.duer.dcs.systeminterface.IPlatformFactory;
 import com.baidu.duer.dcs.systeminterface.IWakeUp;
 import com.baidu.duer.dcs.util.CommonUtil;
-//import com.baidu.duer.dcs.util.FileUtil;
 import com.baidu.duer.dcs.util.LogUtil;
 import com.baidu.duer.dcs.util.NetWorkUtil;
 import com.baidu.duer.dcs.wakeup.WakeUp;
 import com.compass.tts.TtsModule;
 
 import java.util.ArrayList;
-//import java.io.File;
 
 /**
  * 主界面 activity
- * <p>
- * Created by zhangyan42@baidu.com on 2017/5/18.
+ *
  */
 public class DcsSampleMainActivity extends Activity implements View.OnClickListener {
     public static final String TAG = "DcsDemoActivity";
     private Button voiceButton;
-//    private TextView textViewTimeStopListen;
     private TextView textViewRenderVoiceInputText;
-//    private Button pauseOrPlayButton;
 
     private BaseWebView webView;
     private LinearLayout mTopLinearLayout;
     private DcsFramework dcsFramework;
     private DeviceModuleFactory deviceModuleFactory;
     private IPlatformFactory platformFactory;
-//    private boolean isPause = true;
-//    private long startTimeStopListen;
     private boolean isStopListenReceiving;
     private String mHtmlUrl;
-    // 唤醒
     private WakeUp wakeUp;
-    //
-    private TtsModule mTtsModule;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,20 +77,15 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
         initView();
         initOauth();
         initFramework();
-        // 初始化权限 和 语音合成单例实例化
+        // 语音合成单例实例化
         initPermission();
         TtsModule.initializeInstance(this);
-        mTtsModule = TtsModule.getInstance();
-        mTtsModule.speak("注意注意，初始化成功！");
     }
 
     private void initView() {
-//        Button openLogBtn = (Button) findViewById(R.id.openLogBtn);
-//        openLogBtn.setOnClickListener(this);
         voiceButton = (Button) findViewById(R.id.voiceBtn);
         voiceButton.setOnClickListener(this);
 
-//        textViewTimeStopListen = (TextView) findViewById(R.id.id_tv_time_0);
         // 语音录入显示框
         textViewRenderVoiceInputText = (TextView) findViewById(R.id.id_tv_RenderVoiceInputText);
         // 返回数据显示框
@@ -137,13 +117,6 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
             }
         });
         mTopLinearLayout.addView(webView);
-
-//        Button mPreviousSongBtn = (Button) findViewById(R.id.previousSongBtn);
-//        pauseOrPlayButton = (Button) findViewById(R.id.pauseOrPlayBtn);
-//        Button mNextSongBtn = (Button) findViewById(R.id.nextSongBtn);
-//        mPreviousSongBtn.setOnClickListener(this);
-//        pauseOrPlayButton.setOnClickListener(this);
-//        mNextSongBtn.setOnClickListener(this);
     }
 
     private void initFramework() {
@@ -263,8 +236,6 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
         wakeUp.startWakeUp();
         isStopListenReceiving = false;
         voiceButton.setText(getResources().getString(R.string.stop_record));
-//        long t = System.currentTimeMillis() - startTimeStopListen;
-//        textViewTimeStopListen.setText(getResources().getString(R.string.time_record, t));
     }
 
     private void startRecording() {
@@ -272,7 +243,6 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
         isStopListenReceiving = true;
         deviceModuleFactory.getSystemProvider().userActivity();
         voiceButton.setText(getResources().getString(R.string.start_record));
-//        textViewTimeStopListen.setText("");
         textViewRenderVoiceInputText.setText("");
     }
 
@@ -305,129 +275,43 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
                     return;
                 }
                 isStopListenReceiving = true;
-//                startTimeStopListen = System.currentTimeMillis();
                 platformFactory.getVoiceInput().startRecord();
                 doUserActivity();
                 break;
-//            case R.id.openLogBtn:
-//                openAssignFolder(FileUtil.getLogFilePath());
-//                break;
-//            case R.id.previousSongBtn:
-//                platformFactory.getPlayback().previous(nextPreResponseListener);
-//                doUserActivity();
-//                break;
-//            case R.id.nextSongBtn:
-//                platformFactory.getPlayback().next(nextPreResponseListener);
-//                doUserActivity();
-//                break;
-//            case R.id.pauseOrPlayBtn:
-//                if (isPause) {
-//                    platformFactory.getPlayback().play(playPauseResponseListener);
-//                } else {
-//                    platformFactory.getPlayback().pause(playPauseResponseListener);
-//                }
-//                doUserActivity();
-//                break;
             default:
                 break;
         }
     }
 
-//    private IResponseListener playPauseResponseListener = new IResponseListener() {
-//        @Override
-//        public void onSucceed(int statusCode) {
-//            if (statusCode == 204) {
-//                Toast.makeText(DcsSampleMainActivity.this,
-//                        getResources().getString(R.string.no_directive),
-//                        Toast.LENGTH_SHORT)
-//                        .show();
-//            }
-//        }
-//
-//        @Override
-//        public void onFailed(String errorMessage) {
-//            Toast.makeText(DcsSampleMainActivity.this,
-//                    getResources().getString(R.string.request_error),
-//                    Toast.LENGTH_SHORT)
-//                    .show();
-//        }
-//    };
+    /**
+     * android 6.0 以上需要动态申请权限
+     */
+    private void initPermission() {
+        String[] permissions = {
+                Manifest.permission.INTERNET,
+                Manifest.permission.ACCESS_NETWORK_STATE,
+                Manifest.permission.MODIFY_AUDIO_SETTINGS,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_SETTINGS,
+                Manifest.permission.READ_PHONE_STATE,
+                Manifest.permission.ACCESS_WIFI_STATE,
+                Manifest.permission.CHANGE_WIFI_STATE
+        };
 
-//    private IResponseListener nextPreResponseListener = new IResponseListener() {
-//        @Override
-//        public void onSucceed(int statusCode) {
-//            if (statusCode == 204) {
-//                Toast.makeText(DcsSampleMainActivity.this,
-//                        getResources().getString(R.string.no_audio),
-//                        Toast.LENGTH_SHORT)
-//                        .show();
-//            }
-//        }
-//
-//        @Override
-//        public void onFailed(String errorMessage) {
-//            Toast.makeText(DcsSampleMainActivity.this,
-//                    getResources().getString(R.string.request_error),
-//                    Toast.LENGTH_SHORT)
-//                    .show();
-//        }
-//    };
+        ArrayList<String> toApplyList = new ArrayList<String>();
 
-//    /**
-//     * 打开日志
-//     *
-//     * @param path 文件的绝对路径
-//     */
-//    private void openAssignFolder(String path) {
-//        File file = new File(path);
-//        if (!file.exists()) {
-//            Toast.makeText(DcsSampleMainActivity.this,
-//                    getResources().getString(R.string.no_log),
-//                    Toast.LENGTH_SHORT)
-//                    .show();
-//            return;
-//        }
-//        Intent intent = new Intent(Intent.ACTION_VIEW);
-//        intent.addCategory(Intent.CATEGORY_DEFAULT);
-//        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//        intent.setDataAndType(Uri.fromFile(file), "text/plain");
-//        try {
-//            startActivity(Intent.createChooser(intent,
-//                    getResources().getString(R.string.open_file_title)));
-//        } catch (ActivityNotFoundException e) {
-//            e.printStackTrace();
-//        }
-//    }
-
-        /**
-         * android 6.0 以上需要动态申请权限
-         */
-        private void initPermission() {
-            String[] permissions = {
-                    Manifest.permission.INTERNET,
-                    Manifest.permission.ACCESS_NETWORK_STATE,
-                    Manifest.permission.MODIFY_AUDIO_SETTINGS,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                    Manifest.permission.WRITE_SETTINGS,
-                    Manifest.permission.READ_PHONE_STATE,
-                    Manifest.permission.ACCESS_WIFI_STATE,
-                    Manifest.permission.CHANGE_WIFI_STATE
-            };
-
-            ArrayList<String> toApplyList = new ArrayList<String>();
-
-            for (String perm : permissions) {
-                if (PackageManager.PERMISSION_GRANTED != ContextCompat.checkSelfPermission(this, perm)) {
-                    toApplyList.add(perm);
-                    // 进入到这里代表没有权限.
-                }
+        for (String perm : permissions) {
+            if (PackageManager.PERMISSION_GRANTED != ContextCompat.checkSelfPermission(this, perm)) {
+                toApplyList.add(perm);
+                // 进入到这里代表没有权限.
             }
-            String[] tmpList = new String[toApplyList.size()];
-            if (!toApplyList.isEmpty()) {
-                ActivityCompat.requestPermissions(this, toApplyList.toArray(tmpList), 123);
-            }
-
         }
+        String[] tmpList = new String[toApplyList.size()];
+        if (!toApplyList.isEmpty()) {
+            ActivityCompat.requestPermissions(this, toApplyList.toArray(tmpList), 123);
+        }
+
+    }
 
     @Override
     protected void onDestroy() {
