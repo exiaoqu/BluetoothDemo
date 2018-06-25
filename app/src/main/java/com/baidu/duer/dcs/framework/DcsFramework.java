@@ -132,9 +132,9 @@ public class DcsFramework {
             String payloadText = directive.getPayload().toString().split("'")[1];
             for(String key : InterestPoint.INSTANCE.getPoints().keySet()){
                 if( payloadText.contains(key) ){
-                    // 根据板子返回数据组合生成 interestedText
-//                    int index = new Random().nextInt()%InterestPoint.INSTANCE.getPoints().get(key).size();
-                    interestedText = InterestPoint.INSTANCE.getPoints().get(key).get(0);
+                    // 根据板子返回数据 组合生成 interestedText
+                    int index = Math.abs(new Random().nextInt())%InterestPoint.INSTANCE.getPoints().get(key).size();
+                    interestedText = InterestPoint.INSTANCE.getPoints().get(key).get(index);
 
                     isInterested = true;
                     break;
