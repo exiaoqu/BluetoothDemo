@@ -54,7 +54,6 @@ import java.util.ArrayList;
 
 /**
  * 主界面 activity
- *
  */
 public class DcsSampleMainActivity extends Activity implements View.OnClickListener {
     public static final String TAG = "DcsDemoActivity";
@@ -79,7 +78,7 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
         initFramework();
         // 语音合成单例实例化
         initPermission();
-        TtsModule.initializeInstance(this);
+        TtsModule.getInstance().setContext(this);
     }
 
     private void initView() {
@@ -202,14 +201,14 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
         deviceModuleFactory.createPlaybackControllerDeviceModule();
         deviceModuleFactory.createScreenDeviceModule();
         deviceModuleFactory.getScreenDeviceModule().addRenderVoiceInputTextListener(new ScreenDeviceModule.IRenderVoiceInputTextListener() {
-                    @Override
-                    public void onRenderVoiceInputText(RenderVoiceInputTextPayload payload) {
-                        LogUtil.e("=========payload", payload.text);
-                        textViewRenderVoiceInputText.setText(payload.text);
-                    }
-                });
+            @Override
+            public void onRenderVoiceInputText(RenderVoiceInputTextPayload payload) {
+                LogUtil.e("=========payload", payload.text);
+                textViewRenderVoiceInputText.setText(payload.text);
+            }
+        });
         // init唤醒
-        wakeUp = new WakeUp(platformFactory.getWakeUp(),platformFactory.getAudioRecord());
+        wakeUp = new WakeUp(platformFactory.getWakeUp(), platformFactory.getAudioRecord());
         wakeUp.addWakeUpListener(wakeUpListener);
         // 开始录音，监听是否说了唤醒词
         wakeUp.startWakeUp();
@@ -218,7 +217,7 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
     private IWakeUp.IWakeUpListener wakeUpListener = new IWakeUp.IWakeUpListener() {
         @Override
         public void onWakeUpSucceed() {
-            Toast.makeText(DcsSampleMainActivity.this, getResources().getString(R.string.wakeup_succeed),Toast.LENGTH_SHORT).show();
+            Toast.makeText(DcsSampleMainActivity.this, getResources().getString(R.string.wakeup_succeed), Toast.LENGTH_SHORT).show();
             voiceButton.performClick();
         }
     };
