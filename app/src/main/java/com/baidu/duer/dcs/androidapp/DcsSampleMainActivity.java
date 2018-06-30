@@ -24,6 +24,7 @@ import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
+import android.view.KeyEvent;
 import android.view.View;
 import android.webkit.WebView;
 import android.widget.Button;
@@ -94,8 +95,8 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
         webView.setWebViewClientListen(new BaseWebView.WebViewClientListener() {
             @Override
             public BaseWebView.LoadingWebStatus shouldOverrideUrlLoading(WebView view, String url) {
-                // 拦截处理不让其点击
-                return BaseWebView.LoadingWebStatus.STATUS_TRUE;
+                // 不再拦截用户点击
+                return BaseWebView.LoadingWebStatus.STATUS_FALSE;
             }
 
             @Override
@@ -327,5 +328,15 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
         mTopLinearLayout.removeView(webView);
         webView.removeAllViews();
         webView.destroy();
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        // WebView浏览的网页可回退
+        if (keyCode == KeyEvent.KEYCODE_BACK && webView.canGoBack()) {
+            webView.goBack();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
     }
 }
