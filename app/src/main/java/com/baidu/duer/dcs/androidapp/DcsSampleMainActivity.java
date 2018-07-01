@@ -20,14 +20,22 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.AnimationSet;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.ScaleAnimation;
 import android.webkit.WebView;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -58,11 +66,14 @@ import java.util.ArrayList;
  */
 public class DcsSampleMainActivity extends Activity implements View.OnClickListener {
     public static final String TAG = "DcsDemoActivity";
-    private Button voiceButton;
-    private TextView textViewRenderVoiceInputText;
 
+    private ImageView innerBreathingLightImageView;
+    private ImageView outerBreathingLightImageView;
+    private LinearLayout webViewLinearLayout;
     private BaseWebView webView;
-    private LinearLayout mTopLinearLayout;
+    private TextView voiceInputTextView;
+    private Button voiceButton;
+
     private DcsFramework dcsFramework;
     private DeviceModuleFactory deviceModuleFactory;
     private IPlatformFactory platformFactory;
@@ -83,14 +94,70 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
     }
 
     private void initView() {
-        voiceButton = (Button) findViewById(R.id.voiceBtn);
+        innerBreathingLightImageView = findViewById(R.id.innerBreathingLightImageView);
+        outerBreathingLightImageView = findViewById(R.id.outerBreathingLightImageView);
+
+        // 返回数据WebView显示框
+        webViewLinearLayout = findViewById(R.id.webViewLinearLayout);
+
+        // 语音识别显示框
+        voiceInputTextView = findViewById(R.id.voiceInputTextView);
+
+        voiceButton = findViewById(R.id.voiceButton);
         voiceButton.setOnClickListener(this);
 
-        // 语音录入显示框
-        textViewRenderVoiceInputText = (TextView) findViewById(R.id.id_tv_RenderVoiceInputText);
-        // 返回数据显示框
-        mTopLinearLayout = (LinearLayout) findViewById(R.id.topLinearLayout);
+        createBreathingLight();
 
+        createWebView();
+    }
+
+    private void createBreathingLight() {
+        GradientDrawable innerGradientDrawable = new GradientDrawable();
+        GradientDrawable outerGradientDrawable = new GradientDrawable();
+
+        // 设置边框类型为椭圆
+        innerGradientDrawable.setShape(GradientDrawable.OVAL);
+        outerGradientDrawable.setShape(GradientDrawable.OVAL);
+
+        // 设置边框的厚度和颜色
+//        innerGradientDrawable.setStroke(1, Color.BLUE);
+//        outerGradientDrawable.setStroke(1, Color.BLUE);
+
+        // 填充背景颜色
+        innerGradientDrawable.setColor(Color.GREEN);
+        // outerGradientDrawable.setColor(Color.rgb(144,238, 144));  // LIGHTGREEN
+        outerGradientDrawable.setColor(Color.CYAN);
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+            innerBreathingLightImageView.setBackgroundDrawable(innerGradientDrawable);
+            outerBreathingLightImageView.setBackgroundDrawable(outerGradientDrawable);
+        } else {
+            innerBreathingLightImageView.setBackground(innerGradientDrawable);
+            outerBreathingLightImageView.setBackground(outerGradientDrawable);
+        }
+
+        //  3.设置动画
+        // 外圆从和内圆等大的位置开始缩放,这样好处是他俩的包裹父布局的大小能确定为外圆的大小
+        ScaleAnimation scaleAnimation = new ScaleAnimation(
+                10 / 18, 1.0f,
+                10 / 18, 1.0f,
+                ScaleAnimation.RELATIVE_TO_SELF, 0.5f,
+                ScaleAnimation.RELATIVE_TO_SELF, 0.5f);
+        AlphaAnimation alphaAnimation = new AlphaAnimation(1.0f, 0.3f);
+        scaleAnimation.setRepeatCount(AnimationSet.INFINITE);
+        alphaAnimation.setRepeatCount(AnimationSet.INFINITE);
+
+        AnimationSet animationSet = new AnimationSet(true);
+        animationSet.addAnimation(scaleAnimation);
+        animationSet.addAnimation(alphaAnimation);
+        animationSet.setInterpolator(new DecelerateInterpolator());
+        animationSet.setFillAfter(false);
+        animationSet.setDuration(1555);
+
+        outerBreathingLightImageView.startAnimation(animationSet);
+    }
+
+    private void createWebView() {
         webView = new BaseWebView(DcsSampleMainActivity.this.getApplicationContext());
         webView.setWebViewClientListen(new BaseWebView.WebViewClientListener() {
             @Override
@@ -116,7 +183,8 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
             public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
             }
         });
-        mTopLinearLayout.addView(webView);
+
+        webViewLinearLayout.addView(webView);
     }
 
     private void initFramework() {
@@ -205,7 +273,7 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
             @Override
             public void onRenderVoiceInputText(RenderVoiceInputTextPayload payload) {
                 LogUtil.e("=========payload", payload.text);
-                textViewRenderVoiceInputText.setText(payload.text);
+                voiceInputTextView.setText(payload.text);
             }
         });
         // init唤醒
@@ -243,13 +311,13 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
         isStopListenReceiving = true;
         deviceModuleFactory.getSystemProvider().userActivity();
         voiceButton.setText(getResources().getString(R.string.start_record));
-        textViewRenderVoiceInputText.setText("");
+        voiceInputTextView.setText("");
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.voiceBtn:
+            case R.id.voiceButton:
                 if (!NetWorkUtil.isNetworkConnected(this)) {
                     Toast.makeText(this,
                             getResources().getString(R.string.err_net_msg),
@@ -298,7 +366,7 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
                 Manifest.permission.CHANGE_WIFI_STATE
         };
 
-        ArrayList<String> toApplyList = new ArrayList<String>();
+        ArrayList<String> toApplyList = new ArrayList<>();
 
         for (String perm : permissions) {
             if (PackageManager.PERMISSION_GRANTED != ContextCompat.checkSelfPermission(this, perm)) {
@@ -325,7 +393,7 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
             dcsFramework.release();
         }
         webView.setWebViewClientListen(null);
-        mTopLinearLayout.removeView(webView);
+        webViewLinearLayout.removeView(webView);
         webView.removeAllViews();
         webView.destroy();
     }

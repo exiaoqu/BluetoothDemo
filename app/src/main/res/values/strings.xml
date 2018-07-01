@@ -21,5 +21,6 @@
     <string name="client_id_empty">请输入您申请的client_id</string>
     <string name="login_succeed">登陆成功</string>
     <string name="wakeup_succeed">唤醒成功,您问点什么呢?</string>
-    <string name="wakeup_word">智能语音聊天室</string>
+    <string name="wakeup_word">COMPASS智能语音聊天室</string>
+    <string name="breathing_light">呼吸灯</string>
 </resources>
