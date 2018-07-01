@@ -60,6 +60,7 @@ import com.baidu.duer.dcs.wakeup.WakeUp;
 import com.compass.tts.TtsModule;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 /**
  * 主界面 activity
@@ -80,6 +81,8 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
     private boolean isStopListenReceiving;
     private String mHtmlUrl;
     private WakeUp wakeUp;
+
+    private boolean isBreathingLightGreen = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -119,14 +122,20 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
         innerGradientDrawable.setShape(GradientDrawable.OVAL);
         outerGradientDrawable.setShape(GradientDrawable.OVAL);
 
-        // 设置边框的厚度和颜色
-//        innerGradientDrawable.setStroke(1, Color.BLUE);
-//        outerGradientDrawable.setStroke(1, Color.BLUE);
-
-        // 填充背景颜色
-        innerGradientDrawable.setColor(Color.GREEN);
-        // outerGradientDrawable.setColor(Color.rgb(144,238, 144));  // LIGHTGREEN
-        outerGradientDrawable.setColor(Color.CYAN);
+        isBreathingLightGreen = (new Random()).nextBoolean();
+        if (isBreathingLightGreen) {
+            // 设置边框的厚度和颜色
+            outerGradientDrawable.setStroke(2, Color.rgb(0, 100, 0)); // DARKGREEN
+            // 填充背景颜色
+            innerGradientDrawable.setColor(Color.rgb(0, 100, 0)); // DARKGREEN
+            outerGradientDrawable.setColor(Color.rgb(173, 255, 47)); // GREENYELLOW
+        } else {
+            // 设置边框的厚度和颜色
+            outerGradientDrawable.setStroke(2, Color.RED);
+            // 填充背景颜色
+            innerGradientDrawable.setColor(Color.RED);
+            outerGradientDrawable.setColor(Color.rgb(255, 165, 0)); // ORANGE
+        }
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
             innerBreathingLightImageView.setBackgroundDrawable(innerGradientDrawable);
@@ -139,11 +148,11 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
         //  3.设置动画
         // 外圆从和内圆等大的位置开始缩放,这样好处是他俩的包裹父布局的大小能确定为外圆的大小
         ScaleAnimation scaleAnimation = new ScaleAnimation(
-                10 / 18, 1.0f,
-                10 / 18, 1.0f,
+                8 / 18, 1.0f,
+                8 / 18, 1.0f,
                 ScaleAnimation.RELATIVE_TO_SELF, 0.5f,
                 ScaleAnimation.RELATIVE_TO_SELF, 0.5f);
-        AlphaAnimation alphaAnimation = new AlphaAnimation(1.0f, 0.3f);
+        AlphaAnimation alphaAnimation = new AlphaAnimation(1.0f, 0.5f);
         scaleAnimation.setRepeatCount(AnimationSet.INFINITE);
         alphaAnimation.setRepeatCount(AnimationSet.INFINITE);
 
