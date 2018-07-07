@@ -23,4 +23,8 @@
     <string name="wakeup_succeed">唤醒成功,您问点什么呢?</string>
     <string name="wakeup_word">COMPASS智能语音聊天室</string>
     <string name="breathing_light">呼吸灯</string>
+
+    <string name="dialog_confirm">确定</string>
+    <string name="dialog_title">无法连接设备</string>
+    <string name="dialog_message">请先在蓝牙中绑定设备</string>
 </resources>

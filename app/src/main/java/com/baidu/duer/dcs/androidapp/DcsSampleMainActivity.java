@@ -17,6 +17,8 @@ package com.baidu.duer.dcs.androidapp;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -24,9 +26,12 @@ import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
@@ -57,8 +62,12 @@ import com.baidu.duer.dcs.util.CommonUtil;
 import com.baidu.duer.dcs.util.LogUtil;
 import com.baidu.duer.dcs.util.NetWorkUtil;
 import com.baidu.duer.dcs.wakeup.WakeUp;
+import com.compass.bluetooth.BluetoothService;
+import com.compass.interestpoint.Constants;
+import com.compass.tts.SituationalModule;
 import com.compass.tts.TtsModule;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -84,6 +93,12 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
 
     private boolean isBreathingLightGreen = false;
 
+    // 目标蓝牙设备
+    private String targetDeviceAddress = "AB:03:56:78:C1:3A";
+    private BluetoothAdapter mBtAdapter = null;
+    // communicate services
+    private BluetoothService mBluetoothService;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -91,10 +106,52 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
         initView();
         initOauth();
         initFramework();
-        // 语音合成单例实例化
+
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        // 语音合成模块
         initPermission();
         TtsModule.getInstance().setContext(this);
+
+        // 蓝牙模块
+//        mBluetoothService = BluetoothService.getInstance();
+//        int stateConnect =  mBluetoothService.connectDevice(targetDeviceAddress);
+//        if(BluetoothService.RESULT_CONNECT_Null == stateConnect){
+//            showExitDialog(getResources().getString(R.string.dialog_title),getResources().getString(R.string.dialog_message));
+//        }
+
+        // 初始化 SituationalModule 处理模型
+        SituationalModule.getInstance().setWebView(webView);
+        SituationalModule.getInstance().setHandler(mHandler);
     }
+
+    // 消息弹出框
+    private void showExitDialog(String title, String message){
+        new AlertDialog.Builder(this).setTitle(title).setMessage(message).setPositiveButton(getResources().getString(R.string.dialog_confirm), null).show();
+    }
+
+    // Handler
+    private final Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case Constants.WEBSHOW_TEXT:
+                    String message = new String((byte[]) msg.obj, Charset.defaultCharset());
+                    Log.i("Handler","收到消息["+message+"].");
+                    SituationalModule.getInstance().showView(message);
+                    break;
+                case Constants.WEBSHOW_TEXT_FIGURE:
+                    //                    byte[] writeBuf = (byte[]) msg.obj;
+                    //                    String writeMessage = new String((byte[]) msg.obj);
+
+                    break;
+            }
+        }
+    };
 
     private void initView() {
         innerBreathingLightImageView = findViewById(R.id.innerBreathingLightImageView);
@@ -316,6 +373,8 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
     }
 
     private void startRecording() {
+        // 停止所有语音播报
+        SituationalModule.getInstance().stop();
         wakeUp.stopWakeUp();
         isStopListenReceiving = true;
         deviceModuleFactory.getSystemProvider().userActivity();
@@ -397,6 +456,14 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
         wakeUp.removeWakeUpListener(wakeUpListener);
         wakeUp.stopWakeUp();
         wakeUp.releaseWakeUp();
+
+        TtsModule.onDestroy();
+        if (mBtAdapter != null) {
+            mBtAdapter.cancelDiscovery();
+        }
+        if (mBluetoothService != null) {
+            mBluetoothService.stop();
+        }
 
         if (dcsFramework != null) {
             dcsFramework.release();

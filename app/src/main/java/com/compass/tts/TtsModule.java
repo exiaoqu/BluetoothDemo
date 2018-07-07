@@ -29,10 +29,6 @@ public class TtsModule implements SpeechSynthesizerListener {
     private static final String APP_KEY = "yoLqWgEbzNgKKprVT7iSh9YK";
     private static final String SECRET_KEY = "cf7fb720d813411714ec85a5429ea75f";
 
-//    private static final String APP_ID = "11435804";
-//    private static final String APP_KEY = "zLeP3lgbqqZs382iSg1FzOaO";
-//    private static final String SECRET_KEY = "3lbLXrWgCeDerGmPb32nbUSv7cFKfOxq";
-
     // TtsMode.MIX; 离在线融合，在线优先； TtsMode.ONLINE 纯在线； 没有纯离线
     // 离线时只支持2种发音, 离线时只有普通女声和普通男声。即无特别男声、度逍遥和度丫丫
     private static final TtsMode TTS_MODE = TtsMode.ONLINE;
@@ -49,7 +45,7 @@ public class TtsModule implements SpeechSynthesizerListener {
     private String ttsSpeechF7ModelFile;
     private String ttsSpeechYyjwModelFile;
 
-    private SpeechSynthesizer speechSynthesizer;
+    private static SpeechSynthesizer speechSynthesizer;
     private Context context;
 
     private static volatile TtsModule instance;
@@ -206,6 +202,22 @@ public class TtsModule implements SpeechSynthesizerListener {
     private void checkResult(int result, String method) {
         if (result != 0) {
             Log.e(TAG, "error code :" + result + " method:" + method + ", 错误码文档:http://yuyin.baidu.com/docs/tts/122 ");
+        }
+    }
+
+    public void stop() {
+        Log.d(TAG,"停止说话");
+        int result = speechSynthesizer.stop();
+        checkResult(result, "stop");
+    }
+
+
+    public static void onDestroy() {
+        if (speechSynthesizer != null) {
+            speechSynthesizer.stop();
+            speechSynthesizer.release();
+            speechSynthesizer = null;
+            Log.i(TAG,"释放资源成功");
         }
     }
 

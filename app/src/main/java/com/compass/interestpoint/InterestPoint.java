@@ -1,9 +1,5 @@
 package com.compass.interestpoint;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Created by ezfanbi on 6/12/2018.
@@ -12,37 +8,23 @@ import java.util.Map;
  */
 
 public enum InterestPoint {
-    INSTANCE;
+    TEMPERATURE("小强", Constants.MODEL_ARDUINP),    // arduino处理模式
+    HUMIDITY("魔镜", Constants.MODEL_DIALOGUE);      // 对话模式
 
-    Map<String, List<String>> points = null;
-    InterestPoint(){
-        points = new HashMap();
+    private String keyWord;
+    private String model;
 
-        List list = new ArrayList();
-        list.add("牛逼！");
-        list.add("吊炸天！");
-        list.add("相当拽！");
-        list.add("你咋不上天跟太阳肩并肩！");
-        addPoint("直升机",list);
-
-        List list2 = new ArrayList();
-        list2.add("当前室内湿度为：15");
-        list2.add("室内湿度为：15");
-        addPoint("湿度",list2);
+    InterestPoint(String keyWord, String model) {
+        this.keyWord = keyWord;
+        this.model = model;
     }
 
-    // add a point
-    public void addPoint(String key, List list){
-        points.put(key,list);
+    public String getKeyWord(){
+        return keyWord;
     }
 
-    // remove specific point
-    public void removePoint(String key, List list){
-        points.remove(key);
-    }
-
-    public Map<String, List<String>> getPoints(){
-        return points;
+    public String getModel(){
+        return model;
     }
 
 }
