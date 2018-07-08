@@ -18,7 +18,7 @@ import java.util.UUID;
 
 /**
  * Created by ezfanbi on 6/27/2018.
- *
+ * <p>
  * 蓝牙通信模块
  */
 public class BluetoothService {
@@ -26,7 +26,7 @@ public class BluetoothService {
 
     // Name for the SDP record when creating server socket
     private static final String NAME_SECURE = "BluetoothSecure";
-    private static final UUID UUID_SERIAL_PORT_SERVICE  = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+    private static final UUID UUID_SERIAL_PORT_SERVICE = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
     // Constants that indicate the current connection state
     public static final int STATE_NONE = 0;       // we're doing nothing
@@ -42,7 +42,7 @@ public class BluetoothService {
 
     //
     private static int mState;
-    private  static volatile BluetoothService instance;
+    private static volatile BluetoothService instance;
 
     private BluetoothService() {
         mAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -53,8 +53,8 @@ public class BluetoothService {
         mState = STATE_NONE;
     }
 
-    public static synchronized BluetoothService getInstance(){
-        if(null == instance){
+    public static synchronized BluetoothService getInstance() {
+        if (null == instance) {
             instance = new BluetoothService();
         }
         return instance;
@@ -65,14 +65,14 @@ public class BluetoothService {
     public static final int RESULT_CONNECT_Null = 1;
 
     // 自动连接，目标设备
-    public int connectDevice(String targetDeviceAddress){
+    public int connectDevice(String targetDeviceAddress) {
         // 从绑定的设备列表中查找目标设备
         Set<BluetoothDevice> bondedDevices = mAdapter.getBondedDevices();
 
         OK_MatchDevice:
         if (bondedDevices.size() > 0) {
             for (BluetoothDevice device : bondedDevices) {
-                if(targetDeviceAddress.equals(device.getAddress())){
+                if (targetDeviceAddress.equals(device.getAddress())) {
                     BluetoothDevice targetDevice = mAdapter.getRemoteDevice(targetDeviceAddress);
                     connect(targetDevice);
 //                    sendMessage("Already connected-1!");
@@ -80,10 +80,10 @@ public class BluetoothService {
                     break OK_MatchDevice;
                 }
             }
-            Log.w(TAG,"目标设备没有被绑定！");
+            Log.w(TAG, "目标设备没有被绑定！");
             return RESULT_CONNECT_Null;
         } else {
-            Log.w(TAG,"绑定设备列表为空！");
+            Log.w(TAG, "绑定设备列表为空！");
             return RESULT_CONNECT_Null;
         }
 
@@ -92,7 +92,7 @@ public class BluetoothService {
 
     // 发送信息
     public void sendMessage(String message) {
-        if(getState() != STATE_CONNECTED){
+        if (getState() != STATE_CONNECTED) {
             return;
         }
 
@@ -184,7 +184,7 @@ public class BluetoothService {
 
     /**
      * 停止所有线程
-     * */
+     */
     public synchronized void stop() {
         Log.d(TAG, "stop");
 
@@ -242,7 +242,7 @@ public class BluetoothService {
         public AcceptThread() {
             BluetoothServerSocket tmp = null;
             try {
-                tmp = mAdapter.listenUsingRfcommWithServiceRecord(NAME_SECURE, UUID_SERIAL_PORT_SERVICE );
+                tmp = mAdapter.listenUsingRfcommWithServiceRecord(NAME_SECURE, UUID_SERIAL_PORT_SERVICE);
             } catch (IOException e) {
                 Log.e(TAG, "Socket listen() failed", e);
             }
@@ -306,7 +306,7 @@ public class BluetoothService {
             mmDevice = device;
             BluetoothSocket tmp = null;
             try {
-                tmp = device.createRfcommSocketToServiceRecord(UUID_SERIAL_PORT_SERVICE );
+                tmp = device.createRfcommSocketToServiceRecord(UUID_SERIAL_PORT_SERVICE);
             } catch (IOException e) {
                 Log.e(TAG, "Socket create() failed", e);
             }
@@ -382,7 +382,7 @@ public class BluetoothService {
                 try {
                     String words = read.readLine();
                     // 直接将 words 交给情景模型 SituationalModule 处理
-                    if(null != words && words.length()>0){
+                    if (null != words && words.length() > 0) {
                         SituationalModule.getInstance().dealData(words);
                     }
                 } catch (IOException e) {

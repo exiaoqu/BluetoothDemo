@@ -19,6 +19,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -38,6 +39,7 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.AnimationSet;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.ScaleAnimation;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -67,6 +69,7 @@ import com.compass.interestpoint.Constants;
 import com.compass.tts.SituationalModule;
 import com.compass.tts.TtsModule;
 
+import java.io.File;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Random;
@@ -225,6 +228,9 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
 
     private void createWebView() {
         webView = new BaseWebView(DcsSampleMainActivity.this.getApplicationContext());
+
+        //自适应屏幕
+        webView.getSettings().setLayoutAlgorithm(WebSettings.LayoutAlgorithm.SINGLE_COLUMN);
         webView.setWebViewClientListen(new BaseWebView.WebViewClientListener() {
             @Override
             public BaseWebView.LoadingWebStatus shouldOverrideUrlLoading(WebView view, String url) {
@@ -483,4 +489,30 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
         }
         return super.onKeyDown(keyCode, event);
     }
+
+    // Delete all files in the application cache
+    public static void clearApplicationCache(Context context) {
+        Log.i(TAG, String.format("Cache pruning completed, %d files deleted", clearCachedFiles(context.getCacheDir())));
+    }
+
+    private static int clearCachedFiles(final File dir) {
+        int deletedFiles = 0;
+        if (dir != null && dir.isDirectory()) {
+            try {
+                for (File child : dir.listFiles()) {
+                    if (child.isDirectory()) {
+                        deletedFiles += clearCachedFiles(child);
+                    }
+
+                    if (child.delete()) {
+                        deletedFiles++;
+                    }
+                }
+            } catch (Exception e) {
+                Log.e(TAG, String.format("Failed to clean the cache, error %s", e.getMessage()));
+            }
+        }
+        return deletedFiles;
+    }
+
 }

@@ -15,6 +15,7 @@
  */
 package com.baidu.duer.dcs.framework;
 
+import com.baidu.duer.dcs.androidapp.DcsSampleMainActivity;
 import com.baidu.duer.dcs.devicemodule.system.HandleDirectiveException;
 import com.baidu.duer.dcs.devicemodule.system.SystemDeviceModule;
 import com.baidu.duer.dcs.framework.DcsResponseDispatcher.IDcsResponseHandler;
@@ -26,6 +27,7 @@ import com.baidu.duer.dcs.framework.message.Directive;
 import com.baidu.duer.dcs.framework.message.Event;
 import com.baidu.duer.dcs.systeminterface.IPlatformFactory;
 import com.baidu.duer.dcs.util.LogUtil;
+import com.baidu.duer.dcs.util.SystemServiceManager;
 import com.compass.interestpoint.ArduinoDealEnum;
 import com.compass.interestpoint.Constants;
 import com.compass.interestpoint.DialogueDealEnum;
@@ -134,7 +136,10 @@ public class DcsFramework {
         if("ai.dueros.device_interface.screen".equals(directive.header.getNamespace()) && "RenderVoiceInputText".equals(directive.header.getName())
                 && directive.getPayload().toString().contains("type='FINAL'") ){
             payloadText = directive.getPayload().toString().split("'")[1];
-            // 检测第一层兴趣点
+            if(payloadText.length() > 0 ) {
+                DcsSampleMainActivity.clearApplicationCache(SystemServiceManager.getAppContext());
+            }
+			// 检测第一层兴趣点
             String model = null;
             for(InterestPoint point : InterestPoint.values()){
                 if(payloadText.contains(point.getKeyWord())){

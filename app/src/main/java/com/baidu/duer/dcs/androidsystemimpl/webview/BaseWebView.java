@@ -76,8 +76,8 @@ public class BaseWebView extends WebView implements IWebView {
         try {
             // 禁用file协议,http://www.tuicool.com/articles/Q36ZfuF, 防止Android WebView File域攻击
             localWebSettings.setAllowFileAccess(false);
-            localWebSettings.setSupportZoom(false);
-            localWebSettings.setBuiltInZoomControls(false);
+            localWebSettings.setSupportZoom(true); //扩大比例的缩放
+            localWebSettings.setBuiltInZoomControls(true); // 设置出现缩放工具
             localWebSettings.setUseWideViewPort(true);
             localWebSettings.setDomStorageEnabled(true);
             localWebSettings.setLoadWithOverviewMode(true);
