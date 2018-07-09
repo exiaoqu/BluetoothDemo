@@ -5,13 +5,15 @@ import android.os.Message;
 import android.util.Log;
 
 import com.baidu.duer.dcs.systeminterface.IWebView;
-import com.compass.bluetooth.BluetoothService;
 import com.compass.interestpoint.ArduinoDealEnum;
 import com.compass.interestpoint.Constants;
 
+import java.io.IOException;
+import java.io.OutputStream;
+
 /**
  * Created by ezfanbi on 7/3/2018.
- *
+ * <p>
  * 主要功能：
  * 1、处理 DcsFramework 发来的指令；
  * 2、与 BluetoothService 通信，收、发数据；
@@ -33,36 +35,63 @@ public class SituationalModule {
 
     //
     private IWebView webView;
-//    private Handler mHandler = new Handler();
+    //    private Handler mHandler = new Handler();
     private Handler mHandler;
 
+    private OutputStream outputStream;
+
+    public boolean isBreathingLightGreen() {
+        return (this.outputStream != null);
+    }
+
+    public synchronized void setOutputStream(OutputStream outputStream) {
+        this.outputStream = outputStream;
+    }
+
+    public synchronized void clearOutputStream() {
+        this.outputStream = null;
+    }
+
+    private synchronized void sendDownlinkMessage(String message) {
+        try {
+            if (outputStream != null) {
+                outputStream.write(message.getBytes());
+            }
+        } catch (IOException e) {
+            Log.e(TAG, "send downlink message failed", e);
+        }
+    }
+
     // 构造
-    private static volatile SituationalModule instance;
-    private SituationalModule() { }
+    private static SituationalModule instance = new SituationalModule();
+
+    private SituationalModule() {
+    }
+
     public void setWebView(IWebView webView) {
         this.webView = webView;
     }
+
     public void setHandler(Handler mHandler) {
         this.mHandler = mHandler;
     }
+
     public static SituationalModule getInstance() {
-        if (instance == null) {
-            instance = new SituationalModule();
-        }
         return instance;
     }
 
     /**
      * 接收 DcsFramework 发送过来的指令
-     * */
+     */
     private String continuedCommand = null;
-    public void dealCommand(String command){
 
-        switch (command){
+    public void dealCommand(String command) {
+
+        switch (command) {
             case Constants.COMMEAND_DISTANCE://测距
             case Constants.COMMEAND_HUMIDITY://测湿度
             case Constants.COMMEAND_TEMPERATURE://测温度
-                BluetoothService.getInstance().sendMessage(command);
+                sendDownlinkMessage(command);
                 break;
             case Constants.COMMEAND_BLIND://导盲模式，需要开启线程 持续发送命令
                 startBlind();
@@ -76,10 +105,9 @@ public class SituationalModule {
 
     /**
      * 开启导盲模式,
-     *
      */
-    private void startBlind(){
-        show(ArduinoDealEnum.BLIND.getKeyWord()+"已开启");
+    private void startBlind() {
+        show(ArduinoDealEnum.BLIND.getKeyWord() + "已开启");
         this.continuedCommand = ArduinoDealEnum.DISTANCE.getCommand();
         startContinueSend();
     }
@@ -92,20 +120,23 @@ public class SituationalModule {
         @Override
         public void run() {
             mHandler.postDelayed(this, 2000);
+
             Log.d("Handlers", "Called on main thread");
-            BluetoothService.getInstance().sendMessage(continuedCommand);
+            sendDownlinkMessage(continuedCommand);
         }
     };
-    private void startContinueSend(){
+
+    private void startContinueSend() {
         // Start the initial runnable task by posting through the handler
-        if(!isContinueSend){
+        if (!isContinueSend) {
             mHandler.post(runnableCode);
             isContinueSend = true;
         }
     }
-    private void stopContinueSend(){
+
+    private void stopContinueSend() {
         // Removes pending code execution
-        if(isContinueSend){
+        if (isContinueSend) {
             mHandler.removeCallbacks(runnableCode);
             isContinueSend = false;
         }
@@ -114,32 +145,32 @@ public class SituationalModule {
 
     /**
      * 实时处理板子发过来的数据
-     *
-     * */
-    private String[] commandAndData = new String[2];
-    public void dealData (String words){
-        commandAndData = words.split("_");
-        double data = Double.valueOf(commandAndData[1]);
+     */
+    public void dealData(String words) {
+        String[] commandAndData = words.split("_");
+        Log.i(TAG, String.format("receiving from Arduino: %s", words));
+        if(commandAndData.length > 1) {
+            double data = Double.valueOf(commandAndData[1]);
 
-        // 不同的模式展示不同的Text
-        String showText = null;
+            // 不同的模式展示不同的Text
+            String showText = null;
 
-        switch (commandAndData[0].toUpperCase()){
-            case Constants.COMMEAND_DISTANCE:
-                showText = (double)Math.round(data)/100+"米";
-                break;
-            case Constants.COMMEAND_HUMIDITY:
+            switch (commandAndData[0].toUpperCase()) {
+                case Constants.COMMEAND_DISTANCE:
+                    showText = (double) Math.round(data) / 100 + "米";
+                    break;
+                case Constants.COMMEAND_HUMIDITY:
+                    break;
+                case Constants.COMMEAND_TEMPERATURE:
+                    break;
+            }
 
-                break;
-            case Constants.COMMEAND_TEMPERATURE:
-
-                break;
+            show(showText);
         }
 
-        show(showText);
     }
 
-    private void show(String showText){
+    private void show(String showText) {
 //        mHandler.obtainMessage(Constants.WEBSHOW_TEXT,showText).sendToTarget();
 //        mHandler.obtainMessage(Constants.WEBSHOW_TEXT,showText.getBytes()).sendToTarget();
         speak(showText);
@@ -150,20 +181,19 @@ public class SituationalModule {
         mHandler.sendMessage(msg);
     }
 
-    public void showView(String interestedText){
-        Log.d(TAG,"showView: " + interestedText);
+    public void showView(String interestedText) {
+        Log.d(TAG, "showView: " + interestedText);
         String html = htmlPrefix + interestedText + htmlSuffix;
         webView.loadData(html, "text/html; charset=UTF-8", null);
     }
 
-    private void speak(String words){
+    private void speak(String words) {
         TtsModule.getInstance().speak(words);
     }
 
-    public void stop(){
+    public void stop() {
         stopContinueSend();
         TtsModule.getInstance().stop();
     }
 
-    public void onDestroy() { }
 }

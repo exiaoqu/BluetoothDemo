@@ -94,14 +94,6 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
     private String mHtmlUrl;
     private WakeUp wakeUp;
 
-    private boolean isBreathingLightGreen = false;
-
-    // 目标蓝牙设备
-    private String targetDeviceAddress = "AB:03:56:78:C1:3A";
-    private BluetoothAdapter mBtAdapter = null;
-    // communicate services
-    private BluetoothService mBluetoothService;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -110,6 +102,8 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
         initOauth();
         initFramework();
 
+        // 启动蓝牙服务
+        startService(new Intent(this, BluetoothService.class));
     }
 
     @Override
@@ -119,20 +113,15 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
         initPermission();
         TtsModule.getInstance().setContext(this);
 
-        // 蓝牙模块
-//        mBluetoothService = BluetoothService.getInstance();
-//        int stateConnect =  mBluetoothService.connectDevice(targetDeviceAddress);
-//        if(BluetoothService.RESULT_CONNECT_Null == stateConnect){
-//            showExitDialog(getResources().getString(R.string.dialog_title),getResources().getString(R.string.dialog_message));
-//        }
+
 
         // 初始化 SituationalModule 处理模型
-        SituationalModule.getInstance().setWebView(webView);
+		SituationalModule.getInstance().setWebView(webView);
         SituationalModule.getInstance().setHandler(mHandler);
     }
 
     // 消息弹出框
-    private void showExitDialog(String title, String message){
+    private void showExitDialog(String title, String message) {
         new AlertDialog.Builder(this).setTitle(title).setMessage(message).setPositiveButton(getResources().getString(R.string.dialog_confirm), null).show();
     }
 
@@ -144,7 +133,7 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
             switch (msg.what) {
                 case Constants.WEBSHOW_TEXT:
                     String message = new String((byte[]) msg.obj, Charset.defaultCharset());
-                    Log.i("Handler","收到消息["+message+"].");
+                    Log.i("Handler", "收到消息[" + message + "].");
                     SituationalModule.getInstance().showView(message);
                     break;
                 case Constants.WEBSHOW_TEXT_FIGURE:
@@ -182,8 +171,7 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
         innerGradientDrawable.setShape(GradientDrawable.OVAL);
         outerGradientDrawable.setShape(GradientDrawable.OVAL);
 
-        isBreathingLightGreen = (new Random()).nextBoolean();
-        if (isBreathingLightGreen) {
+        if (SituationalModule.getInstance().isBreathingLightGreen()) {
             // 设置边框的厚度和颜色
             outerGradientDrawable.setStroke(2, Color.rgb(0, 100, 0)); // DARKGREEN
             // 填充背景颜色
@@ -458,22 +446,21 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
+        // 停止蓝牙服务
+        stopService(new Intent(this, BluetoothService.class));
+
         // 先remove listener  停止唤醒,释放资源
         wakeUp.removeWakeUpListener(wakeUpListener);
         wakeUp.stopWakeUp();
         wakeUp.releaseWakeUp();
 
         TtsModule.onDestroy();
-        if (mBtAdapter != null) {
-            mBtAdapter.cancelDiscovery();
-        }
-        if (mBluetoothService != null) {
-            mBluetoothService.stop();
-        }
 
         if (dcsFramework != null) {
             dcsFramework.release();
         }
+
         webView.setWebViewClientListen(null);
         webViewLinearLayout.removeView(webView);
         webView.removeAllViews();
