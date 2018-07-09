@@ -32,7 +32,7 @@ import com.compass.interestpoint.ArduinoDealEnum;
 import com.compass.interestpoint.Constants;
 import com.compass.interestpoint.DialogueDealEnum;
 import com.compass.interestpoint.InterestPoint;
-import com.compass.tts.SituationalModule;
+import com.compass.tts.BluetoothHandler;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -113,7 +113,7 @@ public class DcsFramework {
             if (deviceModule != null) {
 //                deviceModule.handleDirective(directive);
                 // 处理感兴趣点
-                 dealInterestPoint(deviceModule, directive);
+                dealInterestPoint(deviceModule, directive);
             } else {
                 String message = "No device to handle the directive";
                 throw new HandleDirectiveException(HandleDirectiveException.ExceptionType.UNSUPPORTED_OPERATION, message);
@@ -132,41 +132,41 @@ public class DcsFramework {
     boolean isInterested = false;
     String interestedText = null;
     String payloadText = null;
-    private void checkInterestPoint(Directive directive){
-        if("ai.dueros.device_interface.screen".equals(directive.header.getNamespace()) && "RenderVoiceInputText".equals(directive.header.getName())
-                && directive.getPayload().toString().contains("type='FINAL'") ){
+
+    private void checkInterestPoint(Directive directive) {
+        if ("ai.dueros.device_interface.screen".equals(directive.header.getNamespace()) && "RenderVoiceInputText".equals(directive.header.getName())
+                && directive.getPayload().toString().contains("type='FINAL'")) {
             payloadText = directive.getPayload().toString().split("'")[1];
-            if(payloadText.length() > 0 ) {
+            if (payloadText.length() > 0) {
                 DcsSampleMainActivity.clearApplicationCache(SystemServiceManager.getAppContext());
             }
-			// 检测第一层兴趣点
+            // 检测第一层兴趣点
             String model = null;
-            for(InterestPoint point : InterestPoint.values()){
-                if(payloadText.contains(point.getKeyWord())){
+            for (InterestPoint point : InterestPoint.values()) {
+                if (payloadText.contains(point.getKeyWord())) {
                     model = point.getModel();
                     break;
                 }
             }
 
-            if(null == model){
+            if (null == model) {
                 return;
             }
 
             isInterested = true;
-            if(Constants.MODEL_ARDUINP.equals(model)){ // 板子测量模式
-                for(ArduinoDealEnum enm : ArduinoDealEnum.values()){
-                    if(payloadText.contains(enm.getKeyWord())){
+            if (Constants.MODEL_ARDUINP.equals(model)) { // 板子测量模式
+                for (ArduinoDealEnum enm : ArduinoDealEnum.values()) {
+                    if (payloadText.contains(enm.getKeyWord())) {
                         // 匹配到第二层关键词
                         interestedText = "";
-                        SituationalModule.getInstance().dealCommand(enm.getCommand());
+                        BluetoothHandler.getInstance().sendDownlinkCommand(enm.getCommand());
                         return;
                     }
                 }
-            }
-            else if(Constants.MODEL_DIALOGUE.equals(model)){ // 自定义对话模式
-                for(String key : DialogueDealEnum.INSTANCE.getPoints().keySet()){
-                    if(payloadText.contains(key)){
-                        int index = Math.abs(new Random().nextInt())%DialogueDealEnum.INSTANCE.getPoints().get(key).size();
+            } else if (Constants.MODEL_DIALOGUE.equals(model)) { // 自定义对话模式
+                for (String key : DialogueDealEnum.INSTANCE.getPoints().keySet()) {
+                    if (payloadText.contains(key)) {
+                        int index = Math.abs(new Random().nextInt()) % DialogueDealEnum.INSTANCE.getPoints().get(key).size();
                         interestedText = DialogueDealEnum.INSTANCE.getPoints().get(key).get(index);
                         return;
                     }
@@ -179,25 +179,24 @@ public class DcsFramework {
     }
 
     // 处理感兴趣的内容
-    private void dealInterestPoint(BaseDeviceModule deviceModule, Directive directive) throws HandleDirectiveException{
-        if(isInterested && !interestedText.equals("")){
+    private void dealInterestPoint(BaseDeviceModule deviceModule, Directive directive) throws HandleDirectiveException {
+        if (isInterested && !interestedText.equals("")) {
             //            deviceModule.handleInterestDirective(interestedText);
             //            if("Speak".equals(directive.header.getName())){
             //                isInterested = false;
             //                interestedText = "";
             //            }
-            if("HtmlView".equals(directive.header.getName())){
+            if ("HtmlView".equals(directive.header.getName())) {
                 // 展示的内容
                 deviceModule.handleInterestDirective(interestedText);
-            }else if("Speak".equals(directive.header.getName())){
+            } else if ("Speak".equals(directive.header.getName())) {
                 // 说话的内容
                 deviceModule.handleInterestDirective(interestedText);
                 // clear
                 isInterested = false;
                 interestedText = "";
             }
-        }
-        else if(!isInterested){
+        } else if (!isInterested) {
             deviceModule.handleDirective(directive);
         }
     }
@@ -209,7 +208,7 @@ public class DcsFramework {
                 platformFactory.getMainHandler().post(new Runnable() {
                     @Override
                     public void run() {
-                        LogUtil.e(TAG, "DcsResponseBodyEnqueue-handleDirective-MSG:"+ responseBody.getDirective().rawMessage);
+                        LogUtil.e(TAG, "DcsResponseBodyEnqueue-handleDirective-MSG:" + responseBody.getDirective().rawMessage);
                         handleDirective(responseBody.getDirective());
                     }
                 });

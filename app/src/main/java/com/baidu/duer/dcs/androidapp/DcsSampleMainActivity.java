@@ -17,8 +17,6 @@ package com.baidu.duer.dcs.androidapp;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -27,8 +25,6 @@ import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
@@ -65,14 +61,11 @@ import com.baidu.duer.dcs.util.LogUtil;
 import com.baidu.duer.dcs.util.NetWorkUtil;
 import com.baidu.duer.dcs.wakeup.WakeUp;
 import com.compass.bluetooth.BluetoothService;
-import com.compass.interestpoint.Constants;
-import com.compass.tts.SituationalModule;
+import com.compass.tts.BluetoothHandler;
 import com.compass.tts.TtsModule;
 
 import java.io.File;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Random;
 
 /**
  * 主界面 activity
@@ -103,6 +96,7 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
         initFramework();
 
         // 启动蓝牙服务
+        BluetoothHandler.getInstance().setWebView(webView);
         startService(new Intent(this, BluetoothService.class));
     }
 
@@ -112,38 +106,12 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
         // 语音合成模块
         initPermission();
         TtsModule.getInstance().setContext(this);
-
-
-
-        // 初始化 SituationalModule 处理模型
-		SituationalModule.getInstance().setWebView(webView);
-        SituationalModule.getInstance().setHandler(mHandler);
     }
 
     // 消息弹出框
-    private void showExitDialog(String title, String message) {
-        new AlertDialog.Builder(this).setTitle(title).setMessage(message).setPositiveButton(getResources().getString(R.string.dialog_confirm), null).show();
-    }
-
-    // Handler
-    private final Handler mHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            switch (msg.what) {
-                case Constants.WEBSHOW_TEXT:
-                    String message = new String((byte[]) msg.obj, Charset.defaultCharset());
-                    Log.i("Handler", "收到消息[" + message + "].");
-                    SituationalModule.getInstance().showView(message);
-                    break;
-                case Constants.WEBSHOW_TEXT_FIGURE:
-                    //                    byte[] writeBuf = (byte[]) msg.obj;
-                    //                    String writeMessage = new String((byte[]) msg.obj);
-
-                    break;
-            }
-        }
-    };
+//    private void showExitDialog(String title, String message) {
+//        new AlertDialog.Builder(this).setTitle(title).setMessage(message).setPositiveButton(getResources().getString(R.string.dialog_confirm), null).show();
+//    }
 
     private void initView() {
         innerBreathingLightImageView = findViewById(R.id.innerBreathingLightImageView);
@@ -171,7 +139,7 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
         innerGradientDrawable.setShape(GradientDrawable.OVAL);
         outerGradientDrawable.setShape(GradientDrawable.OVAL);
 
-        if (SituationalModule.getInstance().isBreathingLightGreen()) {
+        if (BluetoothHandler.getInstance().isBreathingLightGreen()) {
             // 设置边框的厚度和颜色
             outerGradientDrawable.setStroke(2, Color.rgb(0, 100, 0)); // DARKGREEN
             // 填充背景颜色
@@ -368,7 +336,9 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
 
     private void startRecording() {
         // 停止所有语音播报
-        SituationalModule.getInstance().stop();
+        BluetoothHandler.getInstance().disableBlindGuideMode();
+        TtsModule.getInstance().stop();
+
         wakeUp.stopWakeUp();
         isStopListenReceiving = true;
         deviceModuleFactory.getSystemProvider().userActivity();

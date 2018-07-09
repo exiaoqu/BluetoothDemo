@@ -10,7 +10,7 @@ public enum ArduinoDealEnum {
     TEMPERATURE("温度", Constants.COMMEAND_TEMPERATURE),  // 测量温度
     HUMIDITY("湿度", Constants.COMMEAND_HUMIDITY),        // 测量湿度
     DISTANCE("距离", Constants.COMMEAND_DISTANCE),        // 测量距离
-    BLIND("盲人", Constants.COMMEAND_BLIND);              // 导盲模式
+    BLIND("导盲", Constants.COMMEAND_BLIND);              // 导盲模式
 
     private String keyWord;
     private String command;
