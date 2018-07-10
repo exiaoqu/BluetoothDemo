@@ -108,11 +108,6 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
         TtsModule.getInstance().setContext(this);
     }
 
-    // 消息弹出框
-//    private void showExitDialog(String title, String message) {
-//        new AlertDialog.Builder(this).setTitle(title).setMessage(message).setPositiveButton(getResources().getString(R.string.dialog_confirm), null).show();
-//    }
-
     private void initView() {
         innerBreathingLightImageView = findViewById(R.id.innerBreathingLightImageView);
         outerBreathingLightImageView = findViewById(R.id.outerBreathingLightImageView);

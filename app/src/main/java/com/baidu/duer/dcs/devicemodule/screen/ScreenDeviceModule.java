@@ -95,6 +95,9 @@ public class ScreenDeviceModule extends BaseDeviceModule {
 
     @Override
     public void handleInterestDirective(String interestedText){
+        if(interestedText.equals("")){
+            return;
+        }
         String html = "<html><head><meta charset=\"utf-8\"><meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><script src=\"http://duer.bdstatic.com/saiya/dcsview/main.e239b3.js\"></script><style></style></head><body>\n" +
                 "  <div id=\"display\">\n" +
                 "     <section data-from=\"server\" class=\"head p-box-out\">" +

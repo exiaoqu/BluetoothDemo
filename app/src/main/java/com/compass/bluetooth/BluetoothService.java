@@ -28,8 +28,8 @@ import java.util.UUID;
 public class BluetoothService extends Service {
     private static final String TAG = "BluetoothService";
 
-    private static final UUID UUID_SERIAL_PORT_SERVICE = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
-    private static final String TARGET_DEVICE_ADDRESS = "AB:03:56:78:C1:3A"; // 目标蓝牙设备
+    private final UUID UUID_SERIAL_PORT_SERVICE = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+    private final String TARGET_DEVICE_ADDRESS = "AB:03:56:78:C1:3A"; // 目标蓝牙设备
 
     private BluetoothThread bluetoothThread = new BluetoothThread();
 
@@ -118,6 +118,7 @@ public class BluetoothService extends Service {
                     if (TARGET_DEVICE_ADDRESS.equals(device.getAddress())) {
                         BluetoothDevice targetDevice = adapter.getRemoteDevice(TARGET_DEVICE_ADDRESS);
                         socket = getConnectedSocket(targetDevice);
+                        break;
                     }
                 }
 

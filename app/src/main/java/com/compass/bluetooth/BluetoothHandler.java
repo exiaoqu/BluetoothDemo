@@ -128,7 +128,7 @@ public class BluetoothHandler extends Handler {
     }
 
     /**
-     * 导盲模式的定时任务
+     * 盲人模式的定时任务
      */
     private Runnable runnableCode = new Runnable() {
         @Override

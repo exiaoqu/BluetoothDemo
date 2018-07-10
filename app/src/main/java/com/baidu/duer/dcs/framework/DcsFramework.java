@@ -133,6 +133,8 @@ public class DcsFramework {
     private void checkInterestPoint(Directive directive) {
         if ("ai.dueros.device_interface.screen".equals(directive.header.getNamespace()) && "RenderVoiceInputText".equals(directive.header.getName())
                 && directive.getPayload().toString().contains("type='FINAL'")) {
+            // TODO 设置录音结束
+            //
             payloadText = directive.getPayload().toString().split("'")[1];
             // 清理缓存
             if (payloadText.length() > 0) {
@@ -163,7 +165,7 @@ public class DcsFramework {
 
     // 处理感兴趣的内容
     private void dealInterestPoint(BaseDeviceModule deviceModule, Directive directive) throws HandleDirectiveException {
-        if (isInterested && !interestedText.equals("")) {
+        if (isInterested) {
             //            deviceModule.handleInterestDirective(interestedText);
             //            if("Speak".equals(directive.header.getName())){
             //                isInterested = false;
