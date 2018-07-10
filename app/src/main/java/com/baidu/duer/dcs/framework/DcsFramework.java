@@ -32,7 +32,7 @@ import com.compass.interestpoint.ArduinoDealEnum;
 import com.compass.interestpoint.Constants;
 import com.compass.interestpoint.DialogueDealEnum;
 import com.compass.interestpoint.InterestPoint;
-import com.compass.tts.BluetoothHandler;
+import com.compass.bluetooth.BluetoothHandler;
 
 import java.util.ArrayList;
 import java.util.HashMap;

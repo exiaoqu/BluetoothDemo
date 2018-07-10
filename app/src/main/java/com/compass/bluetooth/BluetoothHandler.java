@@ -1,4 +1,4 @@
-package com.compass.tts;
+package com.compass.bluetooth;
 
 import android.os.Handler;
 import android.os.Message;
@@ -7,6 +7,7 @@ import android.util.Log;
 import com.baidu.duer.dcs.systeminterface.IWebView;
 import com.compass.interestpoint.ArduinoDealEnum;
 import com.compass.interestpoint.Constants;
+import com.compass.tts.TtsModule;
 
 import java.io.IOException;
 import java.io.OutputStream;

@@ -61,7 +61,7 @@ import com.baidu.duer.dcs.util.LogUtil;
 import com.baidu.duer.dcs.util.NetWorkUtil;
 import com.baidu.duer.dcs.wakeup.WakeUp;
 import com.compass.bluetooth.BluetoothService;
-import com.compass.tts.BluetoothHandler;
+import com.compass.bluetooth.BluetoothHandler;
 import com.compass.tts.TtsModule;
 
 import java.io.File;

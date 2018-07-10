@@ -11,7 +11,6 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.compass.interestpoint.Constants;
-import com.compass.tts.BluetoothHandler;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -125,6 +124,7 @@ public class BluetoothService extends Service {
                         Log.e(TAG, "close() failed", ex);
                     }
 
+                    socket = null;
                     continue;
                 }
 
