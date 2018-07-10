@@ -91,12 +91,8 @@ public class BluetoothService extends Service {
             }
 
             if (null != showText) {
-                // 说话
-                TtsModule.getInstance().speak(showText);
-
-                // 页面展示
                 Message msg = BluetoothHandler.getInstance().obtainMessage();
-                // Message msg = new Message();
+//                Message msg = new Message();
                 msg.what = 1;
                 msg.obj = showText.getBytes();
                 BluetoothHandler.getInstance().sendMessage(msg);
@@ -113,7 +109,6 @@ public class BluetoothService extends Service {
 
             BluetoothSocket socket = null;
             while (true) {
-
                 // 从绑定的设备列表中查找目标设备
                 BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
                 adapter.enable();

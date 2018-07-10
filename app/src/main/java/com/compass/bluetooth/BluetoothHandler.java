@@ -122,7 +122,6 @@ public class BluetoothHandler extends Handler {
                 break;
             case InterestPointHandler.ACTION_CODE_STOP://停止板子所有行为，停止展示
                 disableBlindGuideMode();
-                TtsModule.getInstance().stop();
                 TtsModule.getInstance().speak("已停止");
                 break;
         } //end switch
@@ -134,8 +133,7 @@ public class BluetoothHandler extends Handler {
     private Runnable runnableCode = new Runnable() {
         @Override
         public void run() {
-            BluetoothHandler.this.postDelayed(this, 2000);
-
+            BluetoothHandler.this.postDelayed(this, 3000);
             Log.i(TAG, "timer call in main thread");
 
             // Distance measurement

@@ -1,5 +1,6 @@
 package com.compass.interestpoint;
 
+import android.util.Log;
 import android.util.Pair;
 
 import java.util.ArrayList;
@@ -14,7 +15,7 @@ import java.util.Map;
  */
 
 public class InterestPointHandler {
-    private static final String TAG = "InterestPointHandler";
+    private final String TAG = "InterestPointHandler";
 
     public static final String ACTION_CODE_STOP = "ST";
     public static final String ACTION_CODE_TEMPERATURE = "TE";  // 温度
@@ -39,7 +40,7 @@ public class InterestPointHandler {
         interestPointMap.put("测+距离", new Action(ACTION_CODE_DISTANCE));
         interestPointMap.put("当前+距离", new Action(ACTION_CODE_DISTANCE));
 
-        interestPointMap.put("导盲", new Action(ACTION_CODE_BLINDGUIDE));
+        interestPointMap.put("盲人", new Action(ACTION_CODE_BLINDGUIDE));
         interestPointMap.put("实时+测距", new Action(ACTION_CODE_BLINDGUIDE));
 
         // DIALOG
@@ -49,7 +50,6 @@ public class InterestPointHandler {
         String[] beauty = {"就是你！"};
         interestPointMap.put("最漂亮", new Action(beauty));
     }
-
 
     private Map<Pair<List<String>, List<String>>, Action> filterWordMap = new HashMap<>();
     private InterestPointHandler() {
@@ -63,8 +63,8 @@ public class InterestPointHandler {
         return instance;
     }
 
-
     public Action getInterestPointAction(String words) {
+        Log.d(TAG, "getInterestPointAction(), words:[" + words + "]");
         for (Map.Entry<Pair<List<String>, List<String>>, Action> entry : filterWordMap.entrySet()) {
             Pair<List<String>, List<String>> pair = entry.getKey();
 

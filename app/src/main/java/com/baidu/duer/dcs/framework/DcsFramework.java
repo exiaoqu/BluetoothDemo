@@ -33,6 +33,7 @@ import com.compass.interestpoint.InterestPointHandler;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Random;
 
 /**
  * dcs业务框架，用于发送事件、处理指令、长连接维护和多channel播放优先级策略等
@@ -150,7 +151,8 @@ public class DcsFramework {
                 return;
             }
             else if(InterestPointHandler.Action.ACTION_TYPE_DIALOG == action.getActionType()){
-                interestedText = action.getActionTextList().get(0);
+                int index = Math.abs(new Random().nextInt())%action.getActionTextList().size();
+                interestedText = action.getActionTextList().get(index);
                 return;
             }
 
