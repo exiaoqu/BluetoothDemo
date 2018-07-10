@@ -5,8 +5,7 @@ import android.os.Message;
 import android.util.Log;
 
 import com.baidu.duer.dcs.systeminterface.IWebView;
-import com.compass.interestpoint.ArduinoDealEnum;
-import com.compass.interestpoint.Constants;
+import com.compass.interestpoint.InterestPointHandler;
 import com.compass.tts.TtsModule;
 
 import java.io.IOException;
@@ -48,11 +47,9 @@ public class BluetoothHandler extends Handler {
     private OutputStream outputStream;
 
     private static BluetoothHandler instance = new BluetoothHandler();
-
     public static BluetoothHandler getInstance() {
         return instance;
     }
-
     public void setWebView(IWebView webView) {
         this.webView = webView;
     }
@@ -65,17 +62,17 @@ public class BluetoothHandler extends Handler {
 
     private void handleUplinkMessage(Message msg) {
         switch (msg.what) {
-            case Constants.WEBSHOW_TEXT:
+            case 1:
                 String message = new String((byte[]) msg.obj, Charset.defaultCharset());
                 Log.i(TAG, String.format("receiving uplink message: %s", message));
 
+                // 展示
                 TtsModule.getInstance().speak(message);
                 showInWebView(message);
                 break;
-            case Constants.WEBSHOW_TEXT_FIGURE:
-                //                    byte[] writeBuf = (byte[]) msg.obj;
-                //                    String writeMessage = new String((byte[]) msg.obj);
-
+            case 2:
+                // byte[] writeBuf = (byte[]) msg.obj;
+                // String writeMessage = new String((byte[]) msg.obj);
                 break;
         }
     }
@@ -93,6 +90,9 @@ public class BluetoothHandler extends Handler {
         return this.outputStream != null;
     }
 
+    /**
+     * 给硬件发 message
+     */
     private synchronized void handleDownlinkMessage(String message) {
         if (outputStream == null) {
             Log.i(TAG, "send downlink message failed! bluetooth socket closed");
@@ -103,9 +103,7 @@ public class BluetoothHandler extends Handler {
             outputStream.write(message.getBytes());
         } catch (IOException e) {
             Log.e(TAG, "send downlink message failed", e);
-
         }
-
     }
 
     /**
@@ -114,22 +112,20 @@ public class BluetoothHandler extends Handler {
     public void sendDownlinkCommand(String command) {
 
         switch (command) {
-            case Constants.COMMEAND_DISTANCE: //测距
-            case Constants.COMMEAND_HUMIDITY: //测湿度
-            case Constants.COMMEAND_TEMPERATURE: //测温度
+            case InterestPointHandler.ACTION_CODE_DISTANCE: //测距
+            case InterestPointHandler.ACTION_CODE_HUMIDITY: //测湿度
+            case InterestPointHandler.ACTION_CODE_TEMPERATURE: //测温度
                 handleDownlinkMessage(command);
                 break;
-
-            case Constants.COMMEAND_BLIND://导盲模式，需要开启线程 持续发送命令
+            case InterestPointHandler.ACTION_CODE_BLINDGUIDE://导盲模式，需要开启线程 持续发送命令
                 enableBlindGuideMode();
                 break;
-
-            case Constants.COMMEAND_STOP://停止板子所有行为，停止展示
+            case InterestPointHandler.ACTION_CODE_STOP://停止板子所有行为，停止展示
                 disableBlindGuideMode();
                 TtsModule.getInstance().stop();
                 TtsModule.getInstance().speak("已停止");
                 break;
-        }//end switch
+        } //end switch
     }
 
     /**
@@ -143,16 +139,17 @@ public class BluetoothHandler extends Handler {
             Log.i(TAG, "timer call in main thread");
 
             // Distance measurement
-            handleDownlinkMessage(ArduinoDealEnum.DISTANCE.getCommand());
+            handleDownlinkMessage(InterestPointHandler.ACTION_CODE_DISTANCE);
         }
     };
 
     private void enableBlindGuideMode() {
-        showInWebView(ArduinoDealEnum.BLIND.getKeyWord() + "模式已开启");
+        showInWebView("盲人模式已开启");
         BluetoothHandler.this.post(runnableCode);
     }
 
     public void disableBlindGuideMode() {
+        TtsModule.getInstance().stop();
         BluetoothHandler.this.removeCallbacks(runnableCode);
     }
 

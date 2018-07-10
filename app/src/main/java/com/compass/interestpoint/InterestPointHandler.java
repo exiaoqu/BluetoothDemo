@@ -16,19 +16,18 @@ import java.util.Map;
 public class InterestPointHandler {
     private static final String TAG = "InterestPointHandler";
 
-    private static final String ACTION_CODE_STOP = "A";
-    private static final String ACTION_CODE_TEMPERATURE = "B";
-    private static final String ACTION_CODE_HUMIDITY = "C";
-    private static final String ACTION_CODE_DISTANCE = "D";
-    private static final String ACTION_CODE_BLINDGUIDE = "E";
+    public static final String ACTION_CODE_STOP = "ST";
+    public static final String ACTION_CODE_TEMPERATURE = "TE";  // 温度
+    public static final String ACTION_CODE_HUMIDITY = "HU";     // 湿度
+    public static final String ACTION_CODE_DISTANCE = "DI";     // 距离
+    public static final String ACTION_CODE_BLINDGUIDE = "BL";   // 盲人
+    public static final String ACTION_CODE_FIRE_ALARM = "FI";   // 火警
 
     private static Map<String, Action> interestPointMap = new HashMap<>();
-
     static {
         // ARDUINO
         interestPointMap.put("停止", new Action(ACTION_CODE_STOP));
         interestPointMap.put("停+下来", new Action(ACTION_CODE_STOP));
-
 
         interestPointMap.put("测+温度", new Action(ACTION_CODE_TEMPERATURE));
         interestPointMap.put("室内+温度", new Action(ACTION_CODE_TEMPERATURE));
@@ -37,6 +36,7 @@ public class InterestPointHandler {
         interestPointMap.put("室内+湿度", new Action(ACTION_CODE_HUMIDITY));
 
         interestPointMap.put("测+距", new Action(ACTION_CODE_DISTANCE));
+        interestPointMap.put("测+距离", new Action(ACTION_CODE_DISTANCE));
         interestPointMap.put("当前+距离", new Action(ACTION_CODE_DISTANCE));
 
         interestPointMap.put("导盲", new Action(ACTION_CODE_BLINDGUIDE));
@@ -47,17 +47,24 @@ public class InterestPointHandler {
         interestPointMap.put("直升机", new Action(helicopter));
 
         String[] beauty = {"就是你！"};
-        interestPointMap.put("直升机", new Action(beauty));
+        interestPointMap.put("最漂亮", new Action(beauty));
     }
 
-    private Map<Pair<List<String>, List<String>>, Action> filterWordMap = new HashMap<>();
-    private InterestPointHandler instance = new InterestPointHandler();
 
-    public InterestPointHandler getInstance() {
+    private Map<Pair<List<String>, List<String>>, Action> filterWordMap = new HashMap<>();
+    private InterestPointHandler() {
+        for (Map.Entry<String, Action> entry : interestPointMap.entrySet()) {
+            Pair<List<String>, List<String>> pair = decodeInterestPoint(entry.getKey());
+            filterWordMap.put(pair, entry.getValue());
+        }
+    }
+    private static InterestPointHandler instance = new InterestPointHandler();
+    public static InterestPointHandler getInstance() {
         return instance;
     }
 
-    public Action getInterestPointAction(String text) {
+
+    public Action getInterestPointAction(String words) {
         for (Map.Entry<Pair<List<String>, List<String>>, Action> entry : filterWordMap.entrySet()) {
             Pair<List<String>, List<String>> pair = entry.getKey();
 
@@ -66,19 +73,19 @@ public class InterestPointHandler {
 
             boolean flag = true;
 
-            for (String includeInterestPoint : includeInterestPointList) {
-                if (!text.contains(includeInterestPoint)) {
-                    flag = false;
-                    break;
-                }
-            }
-
             if (flag) {
                 for (String excludeInterestPoint : excludeInterestPointList) {
-                    if (text.contains(excludeInterestPoint)) {
+                    if (words.contains(excludeInterestPoint)) {
                         flag = false;
                         break;
                     }
+                }
+            }
+
+            for (String includeInterestPoint : includeInterestPointList) {
+                if (!words.contains(includeInterestPoint)) {
+                    flag = false;
+                    break;
                 }
             }
 
@@ -87,13 +94,6 @@ public class InterestPointHandler {
             }
         }
         return null;
-    }
-
-    private InterestPointHandler() {
-        for (Map.Entry<String, Action> entry : interestPointMap.entrySet()) {
-            Pair<List<String>, List<String>> pair = decodeInterestPoint(entry.getKey());
-            filterWordMap.put(pair, entry.getValue());
-        }
     }
 
     private Pair<List<String>, List<String>> decodeInterestPoint(String interestPoint) {

@@ -10,7 +10,8 @@ import android.os.Message;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.compass.interestpoint.Constants;
+import com.compass.interestpoint.InterestPointHandler;
+import com.compass.tts.TtsModule;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -19,7 +20,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.Set;
 import java.util.UUID;
-
 
 /**
  * Created by ezfanbi on 6/27/2018.
@@ -61,32 +61,43 @@ public class BluetoothService extends Service {
         super.onDestroy();
     }
 
-    private void handleUplinkData(String words) {
+    /**
+     * 处理硬件发送过来的数据
+     */
+    private void handleUplinkData(String arduinoData) {
 
-        Log.i(TAG, String.format("receiving from Arduino: %s", words));
+        Log.i(TAG, String.format("receiving from Arduino: %s", arduinoData));
 
-        String[] args = words.split("_");
+        String[] args = arduinoData.split("_");
         if (args.length > 1) {
             String command = args[0].toUpperCase();
-            double data = Double.valueOf(args[1]);
+            double data = args[1].equals("")?  (0d) : Double.valueOf(args[1]);
 
             // 不同的模式展示不同的Text
             String showText = null;
-
             switch (command) {
-                case Constants.COMMEAND_DISTANCE:
-                    showText = "距离" + (double) Math.round(data) / 100 + "米";
+                case InterestPointHandler.ACTION_CODE_DISTANCE:
+                    showText = (double) Math.round(data) / 100 + "米";
                     break;
-                case Constants.COMMEAND_HUMIDITY:
+                case InterestPointHandler.ACTION_CODE_HUMIDITY:
                     break;
-                case Constants.COMMEAND_TEMPERATURE:
+                case InterestPointHandler.ACTION_CODE_TEMPERATURE:
+                    break;
+                case InterestPointHandler.ACTION_CODE_FIRE_ALARM:
+                    // 1、警报灯闪烁
+                    BluetoothHandler.getInstance().disableBlindGuideMode();
+                    showText = "火警警报";
                     break;
             }
 
-            if (showText != null && !showText.isEmpty()) {
+            if (null != showText) {
+                // 说话
+                TtsModule.getInstance().speak(showText);
+
+                // 页面展示
                 Message msg = BluetoothHandler.getInstance().obtainMessage();
                 // Message msg = new Message();
-                msg.what = Constants.WEBSHOW_TEXT;
+                msg.what = 1;
                 msg.obj = showText.getBytes();
                 BluetoothHandler.getInstance().sendMessage(msg);
             }

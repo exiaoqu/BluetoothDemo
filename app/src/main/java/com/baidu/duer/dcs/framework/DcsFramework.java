@@ -28,15 +28,11 @@ import com.baidu.duer.dcs.framework.message.Event;
 import com.baidu.duer.dcs.systeminterface.IPlatformFactory;
 import com.baidu.duer.dcs.util.LogUtil;
 import com.baidu.duer.dcs.util.SystemServiceManager;
-import com.compass.interestpoint.ArduinoDealEnum;
-import com.compass.interestpoint.Constants;
-import com.compass.interestpoint.DialogueDealEnum;
-import com.compass.interestpoint.InterestPoint;
 import com.compass.bluetooth.BluetoothHandler;
+import com.compass.interestpoint.InterestPointHandler;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Random;
 
 /**
  * dcs业务框架，用于发送事件、处理指令、长连接维护和多channel播放优先级策略等
@@ -137,40 +133,25 @@ public class DcsFramework {
         if ("ai.dueros.device_interface.screen".equals(directive.header.getNamespace()) && "RenderVoiceInputText".equals(directive.header.getName())
                 && directive.getPayload().toString().contains("type='FINAL'")) {
             payloadText = directive.getPayload().toString().split("'")[1];
+            // 清理缓存
             if (payloadText.length() > 0) {
                 DcsSampleMainActivity.clearApplicationCache(SystemServiceManager.getAppContext());
             }
-            // 检测第一层兴趣点
-            String model = null;
-            for (InterestPoint point : InterestPoint.values()) {
-                if (payloadText.contains(point.getKeyWord())) {
-                    model = point.getModel();
-                    break;
-                }
-            }
 
-            if (null == model) {
-                return;
+            InterestPointHandler.Action action = InterestPointHandler.getInstance().getInterestPointAction(payloadText);
+            if(null == action){
+               return;
             }
 
             isInterested = true;
-            if (Constants.MODEL_ARDUINP.equals(model)) { // 板子测量模式
-                for (ArduinoDealEnum enm : ArduinoDealEnum.values()) {
-                    if (payloadText.contains(enm.getKeyWord())) {
-                        // 匹配到第二层关键词
-                        interestedText = "";
-                        BluetoothHandler.getInstance().sendDownlinkCommand(enm.getCommand());
-                        return;
-                    }
-                }
-            } else if (Constants.MODEL_DIALOGUE.equals(model)) { // 自定义对话模式
-                for (String key : DialogueDealEnum.INSTANCE.getPoints().keySet()) {
-                    if (payloadText.contains(key)) {
-                        int index = Math.abs(new Random().nextInt()) % DialogueDealEnum.INSTANCE.getPoints().get(key).size();
-                        interestedText = DialogueDealEnum.INSTANCE.getPoints().get(key).get(index);
-                        return;
-                    }
-                }
+            if(InterestPointHandler.Action.ACTION_TYPE_ARDUINO == action.getActionType()){
+                interestedText = "";
+                BluetoothHandler.getInstance().sendDownlinkCommand(action.getActionCode());
+                return;
+            }
+            else if(InterestPointHandler.Action.ACTION_TYPE_DIALOG == action.getActionType()){
+                interestedText = action.getActionTextList().get(0);
+                return;
             }
 
             // 这里表示，没有匹配第二层关键词
