@@ -97,6 +97,7 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
 
         // 启动蓝牙服务
         BluetoothHandler.getInstance().setWebView(webView);
+        BluetoothHandler.getInstance().setContext(this);
         startService(new Intent(this, BluetoothService.class));
     }
 
@@ -126,15 +127,11 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
         createWebView();
     }
 
-    private void createBreathingLight() {
-        GradientDrawable innerGradientDrawable = new GradientDrawable();
-        GradientDrawable outerGradientDrawable = new GradientDrawable();
-
-        // 设置边框类型为椭圆
-        innerGradientDrawable.setShape(GradientDrawable.OVAL);
-        outerGradientDrawable.setShape(GradientDrawable.OVAL);
-
-        if (BluetoothHandler.getInstance().isBreathingLightGreen()) {
+    // 呼吸灯
+    GradientDrawable innerGradientDrawable = new GradientDrawable();
+    GradientDrawable outerGradientDrawable = new GradientDrawable();
+    public void updateBreathingLamp(boolean bl){
+        if (bl) {
             // 设置边框的厚度和颜色
             outerGradientDrawable.setStroke(2, Color.rgb(0, 100, 0)); // DARKGREEN
             // 填充背景颜色
@@ -147,6 +144,14 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
             innerGradientDrawable.setColor(Color.RED);
             outerGradientDrawable.setColor(Color.rgb(255, 165, 0)); // ORANGE
         }
+    }
+
+    private void createBreathingLight() {
+        // 设置边框类型为椭圆
+        innerGradientDrawable.setShape(GradientDrawable.OVAL);
+        outerGradientDrawable.setShape(GradientDrawable.OVAL);
+
+        updateBreathingLamp(false);
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
             innerBreathingLightImageView.setBackgroundDrawable(innerGradientDrawable);
@@ -255,39 +260,6 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
                     }
                 });
 
-//        deviceModuleFactory.createAlertsDeviceModule();
-//        deviceModuleFactory.createAudioPlayerDeviceModule();
-//        deviceModuleFactory.getAudioPlayerDeviceModule().addAudioPlayListener(
-//                new IMediaPlayer.SimpleMediaPlayerListener() {
-//                    @Override
-//                    public void onPaused() {
-//                        super.onPaused();
-//                        pauseOrPlayButton.setText(getResources().getString(R.string.audio_paused));
-//                        isPause = true;
-//                    }
-//
-//                    @Override
-//                    public void onPlaying() {
-//                        super.onPlaying();
-//                        pauseOrPlayButton.setText(getResources().getString(R.string.audio_playing));
-//                        isPause = false;
-//                    }
-//
-//                    @Override
-//                    public void onCompletion() {
-//                        super.onCompletion();
-//                        pauseOrPlayButton.setText(getResources().getString(R.string.audio_default));
-//                        isPause = false;
-//                    }
-//
-//                    @Override
-//                    public void onStopped() {
-//                        super.onStopped();
-//                        pauseOrPlayButton.setText(getResources().getString(R.string.audio_default));
-//                        isPause = true;
-//                    }
-//                });
-
         deviceModuleFactory.createSystemDeviceModule();
         deviceModuleFactory.createSpeakControllerDeviceModule();
         deviceModuleFactory.createPlaybackControllerDeviceModule();
@@ -295,7 +267,7 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
         deviceModuleFactory.getScreenDeviceModule().addRenderVoiceInputTextListener(new ScreenDeviceModule.IRenderVoiceInputTextListener() {
             @Override
             public void onRenderVoiceInputText(RenderVoiceInputTextPayload payload) {
-                LogUtil.e("=========payload", payload.text);
+                LogUtil.e(TAG,"=========> payload:[" + payload.text +"]");
                 voiceInputTextView.setText(payload.text);
             }
         });

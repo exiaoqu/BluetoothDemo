@@ -11,7 +11,6 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.compass.interestpoint.InterestPointHandler;
-import com.compass.tts.TtsModule;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -20,6 +19,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.Set;
 import java.util.UUID;
+import java.util.Date;
 
 /**
  * Created by ezfanbi on 6/27/2018.
@@ -61,6 +61,8 @@ public class BluetoothService extends Service {
         super.onDestroy();
     }
 
+    long lastDate = System.currentTimeMillis();
+    long curDate = 0L;
     /**
      * 处理硬件发送过来的数据
      */
@@ -76,6 +78,13 @@ public class BluetoothService extends Service {
             // 不同的模式展示不同的Text
             String showText = null;
             switch (command) {
+                case "BL":
+                    curDate = System.currentTimeMillis();
+                    if(curDate - lastDate > 3*1000){
+
+                    }
+                    lastDate = curDate;
+                break;
                 case InterestPointHandler.ACTION_CODE_DISTANCE:
                     showText = (double) Math.round(data) / 100 + "米";
                     break;
@@ -84,7 +93,7 @@ public class BluetoothService extends Service {
                 case InterestPointHandler.ACTION_CODE_TEMPERATURE:
                     break;
                 case InterestPointHandler.ACTION_CODE_FIRE_ALARM:
-                    // 1、警报灯闪烁
+                    // 警报灯闪烁
                     BluetoothHandler.getInstance().disableBlindGuideMode();
                     showText = "火警警报";
                     break;
@@ -92,7 +101,6 @@ public class BluetoothService extends Service {
 
             if (null != showText) {
                 Message msg = BluetoothHandler.getInstance().obtainMessage();
-//                Message msg = new Message();
                 msg.what = 1;
                 msg.obj = showText.getBytes();
                 BluetoothHandler.getInstance().sendMessage(msg);
@@ -179,14 +187,13 @@ public class BluetoothService extends Service {
             }
 
             BluetoothHandler.getInstance().setOutputStream(os);
-
             BufferedReader bf = new BufferedReader(new InputStreamReader(is));
 
             // 持续监听
             while (true) {
                 try {
                     String words = bf.readLine();
-                    // 直接将 words 交给情景模型 SituationalModule 处理
+                    // 直接将 words 交给情景模型处理
                     if (words != null && words.length() > 0) {
                         handleUplinkData(words);
                     }
@@ -195,18 +202,28 @@ public class BluetoothService extends Service {
 
                     BluetoothHandler.getInstance().setOutputStream(null);
                     closeConnectedSocket(socket);
+                    closeBufferedReader(bf);
+                    // 停止该线程
+                    bluetoothThread.interrupt();
                     break;
                 }
             }
         }
 
+        // 当连接断开、BufferedReader读取异常时 close
         private void closeConnectedSocket(BluetoothSocket socket) {
             try {
                 socket.close();
             } catch (IOException ex) {
-                Log.e(TAG, "close() failed", ex);
+                Log.e(TAG, "close() socket failed!", ex);
             }
         }
-
+        private void closeBufferedReader(BufferedReader bf) {
+            try {
+                bf.close();
+            } catch (IOException ex) {
+                Log.e(TAG, "close() bufferedReader failed!", ex);
+            }
+        }
     }
 }

@@ -93,24 +93,23 @@ public class ScreenDeviceModule extends BaseDeviceModule {
         }
     }
 
+    String html = "<html><head><meta charset=\"utf-8\"><meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><script src=\"http://duer.bdstatic.com/saiya/dcsview/main.e239b3.js\"></script><style></style></head><body>\n" +
+            "<div id=\"display\">\n" +
+            "<section data-from=\"server\" class=\"head p-box-out\">" +
+            "<div class=\"avatar\"></div>" +
+            "<div class=\"bubble-container\">" +
+            "<div class=\"bubble p-border text\">" +
+            "<div class=\"text-content text\">%s</div></div></div>" +
+            "</section>\n" +
+            "</div></body></html>";
+
     @Override
     public void handleInterestDirective(String interestedText){
         if(interestedText.equals("")){
             return;
         }
-        String html = "<html><head><meta charset=\"utf-8\"><meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><script src=\"http://duer.bdstatic.com/saiya/dcsview/main.e239b3.js\"></script><style></style></head><body>\n" +
-                "  <div id=\"display\">\n" +
-                "     <section data-from=\"server\" class=\"head p-box-out\">" +
-                "<div class=\"avatar\"></div>" +
-                "<div class=\"bubble-container\">" +
-                "<div class=\"bubble p-border text\">" +
-                "<div class=\"text-content text\"> "+interestedText+"</div><!----></div></div>" +
-                "</section>\n" +
-                "  </div>\n";
-
-        webView.loadData(html, "text/html; charset=UTF-8", null);
+        webView.loadData(String.format(html, interestedText), "text/html; charset=UTF-8", null);
     }
-
 
     private void handleRenderVoiceInputTextPayload(Payload payload) {
         RenderVoiceInputTextPayload textPayload = (RenderVoiceInputTextPayload) payload;

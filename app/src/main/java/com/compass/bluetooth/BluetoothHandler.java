@@ -1,9 +1,11 @@
 package com.compass.bluetooth;
 
+import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
+import com.baidu.duer.dcs.androidapp.DcsSampleMainActivity;
 import com.baidu.duer.dcs.systeminterface.IWebView;
 import com.compass.interestpoint.InterestPointHandler;
 import com.compass.tts.TtsModule;
@@ -18,6 +20,8 @@ import java.nio.charset.Charset;
  */
 public class BluetoothHandler extends Handler {
     private static final String TAG = "BluetoothHandler";
+    private final int MSG_ARDUINO_RETURN_TEXT = 1;
+    private final int MSG_BREATH_LAMP_STATE = 2;
 
     // HTML静态页面基本信息
     private static final String WEB_VIEW_HTML_FORMAT_STRING = "<html>" +
@@ -42,16 +46,19 @@ public class BluetoothHandler extends Handler {
             "</body>" +
             "</html>";
 
-
     private IWebView webView;
     private OutputStream outputStream;
-
+    private DcsSampleMainActivity mContext = null;
     private static BluetoothHandler instance = new BluetoothHandler();
     public static BluetoothHandler getInstance() {
         return instance;
     }
     public void setWebView(IWebView webView) {
         this.webView = webView;
+    }
+
+    public void setContext(Context context) {
+        this.mContext = (DcsSampleMainActivity)context;
     }
 
     @Override
@@ -62,7 +69,7 @@ public class BluetoothHandler extends Handler {
 
     private void handleUplinkMessage(Message msg) {
         switch (msg.what) {
-            case 1:
+            case MSG_ARDUINO_RETURN_TEXT:
                 String message = new String((byte[]) msg.obj, Charset.defaultCharset());
                 Log.i(TAG, String.format("receiving uplink message: %s", message));
 
@@ -70,9 +77,9 @@ public class BluetoothHandler extends Handler {
                 TtsModule.getInstance().speak(message);
                 showInWebView(message);
                 break;
-            case 2:
-                // byte[] writeBuf = (byte[]) msg.obj;
-                // String writeMessage = new String((byte[]) msg.obj);
+            case MSG_BREATH_LAMP_STATE:
+                //
+                this.mContext.updateBreathingLamp((Boolean) msg.obj);
                 break;
         }
     }
@@ -84,10 +91,11 @@ public class BluetoothHandler extends Handler {
 
     public synchronized void setOutputStream(OutputStream outputStream) {
         this.outputStream = outputStream;
-    }
-
-    public synchronized boolean isBreathingLightGreen() {
-        return this.outputStream != null;
+        // 更新呼吸灯
+        Message msg = obtainMessage();
+        msg.what = MSG_BREATH_LAMP_STATE;
+        msg.obj = (null != outputStream);
+        sendMessage(msg);
     }
 
     /**

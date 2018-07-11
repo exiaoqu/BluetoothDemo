@@ -15,6 +15,8 @@
  */
 package com.baidu.duer.dcs.framework;
 
+import android.util.Log;
+
 import com.baidu.duer.dcs.androidapp.DcsSampleMainActivity;
 import com.baidu.duer.dcs.devicemodule.system.HandleDirectiveException;
 import com.baidu.duer.dcs.devicemodule.system.SystemDeviceModule;
@@ -108,7 +110,6 @@ public class DcsFramework {
         try {
             BaseDeviceModule deviceModule = dispatchDeviceModules.get(namespace);
             if (deviceModule != null) {
-//                deviceModule.handleDirective(directive);
                 // 处理感兴趣点
                 dealInterestPoint(deviceModule, directive);
             } else {
@@ -129,18 +130,14 @@ public class DcsFramework {
     boolean isInterested = false;
     String interestedText = null;
     String payloadText = null;
-
     private void checkInterestPoint(Directive directive) {
         if ("ai.dueros.device_interface.screen".equals(directive.header.getNamespace()) && "RenderVoiceInputText".equals(directive.header.getName())
                 && directive.getPayload().toString().contains("type='FINAL'")) {
-            // TODO 设置录音结束
-            //
             payloadText = directive.getPayload().toString().split("'")[1];
             // 清理缓存
             if (payloadText.length() > 0) {
                 DcsSampleMainActivity.clearApplicationCache(SystemServiceManager.getAppContext());
             }
-
             InterestPointHandler.Action action = InterestPointHandler.getInstance().getInterestPointAction(payloadText);
             if(null == action){
                return;
@@ -158,7 +155,6 @@ public class DcsFramework {
                 return;
             }
 
-            // 这里表示，没有匹配第二层关键词
             interestedText = "没收到具体命令！";
         }
     }
@@ -166,11 +162,7 @@ public class DcsFramework {
     // 处理感兴趣的内容
     private void dealInterestPoint(BaseDeviceModule deviceModule, Directive directive) throws HandleDirectiveException {
         if (isInterested) {
-            //            deviceModule.handleInterestDirective(interestedText);
-            //            if("Speak".equals(directive.header.getName())){
-            //                isInterested = false;
-            //                interestedText = "";
-            //            }
+            Log.i(TAG,"interestedText：["+interestedText+"]");
             if ("HtmlView".equals(directive.header.getName())) {
                 // 展示的内容
                 deviceModule.handleInterestDirective(interestedText);
@@ -180,6 +172,8 @@ public class DcsFramework {
                 // clear
                 isInterested = false;
                 interestedText = "";
+            } else {
+                deviceModule.handleDirective(directive);
             }
         } else if (!isInterested) {
             deviceModule.handleDirective(directive);
