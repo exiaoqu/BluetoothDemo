@@ -20,6 +20,7 @@ public class QDownLinkMsgHelper {
         switch (command) {
             case QInterestPoint.ACTION_CODE_DISTANCE: //测距
             case QInterestPoint.ACTION_CODE_TEMPERATURE: //测温度
+            case QInterestPoint.ACTION_CODE_HUMIDITY:
                 device.sendMessage(command);
                 break;
             case QInterestPoint.ACTION_CODE_BLINDGUIDE://导盲模式，需要开启线程 持续发送命令
