@@ -1,4 +1,4 @@
-package com.compass.interestpoint;
+package com.compass.qq;
 
 import android.util.Log;
 import android.util.Pair;
@@ -13,9 +13,11 @@ import java.util.Map;
  * Created by EXIAOQU on 2018/7/9.
  * Interest Point Handler
  */
+public class QInterestPoint {
+    private final String TAG = "QInterestPoint";
 
-public class InterestPointHandler {
-    private final String TAG = "InterestPointHandler";
+    private Map<Pair<List<String>, List<String>>, Action> filterWordMap = new HashMap<>();
+    private static Map<String, Action> interestPointMap = new HashMap<>();
 
     public static final String ACTION_CODE_STOP = "ST";
     public static final String ACTION_CODE_TEMPERATURE = "TE";  // 温度
@@ -24,7 +26,6 @@ public class InterestPointHandler {
     public static final String ACTION_CODE_BLINDGUIDE = "BL";   // 盲人
     public static final String ACTION_CODE_FIRE_ALARM = "FI";   // 火警
 
-    private static Map<String, Action> interestPointMap = new HashMap<>();
     static {
         // ARDUINO
         interestPointMap.put("停止", new Action(ACTION_CODE_STOP));
@@ -51,16 +52,16 @@ public class InterestPointHandler {
         interestPointMap.put("最漂亮", new Action(beauty));
     }
 
-    private Map<Pair<List<String>, List<String>>, Action> filterWordMap = new HashMap<>();
-    private InterestPointHandler() {
+    private static QInterestPoint instance = new QInterestPoint();
+    public static QInterestPoint getInstance() {
+        return instance;
+    }
+
+    private QInterestPoint() {
         for (Map.Entry<String, Action> entry : interestPointMap.entrySet()) {
             Pair<List<String>, List<String>> pair = decodeInterestPoint(entry.getKey());
             filterWordMap.put(pair, entry.getValue());
         }
-    }
-    private static InterestPointHandler instance = new InterestPointHandler();
-    public static InterestPointHandler getInstance() {
-        return instance;
     }
 
     public Action getInterestPointAction(String words) {

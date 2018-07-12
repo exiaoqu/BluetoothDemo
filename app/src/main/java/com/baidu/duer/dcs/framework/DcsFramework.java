@@ -30,8 +30,8 @@ import com.baidu.duer.dcs.framework.message.Event;
 import com.baidu.duer.dcs.systeminterface.IPlatformFactory;
 import com.baidu.duer.dcs.util.LogUtil;
 import com.baidu.duer.dcs.util.SystemServiceManager;
-import com.compass.bluetooth.BluetoothHandler;
-import com.compass.interestpoint.InterestPointHandler;
+import com.compass.qq.QDownLinkMsgHelper;
+import com.compass.qq.QInterestPoint;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -138,18 +138,18 @@ public class DcsFramework {
             if (payloadText.length() > 0) {
                 DcsSampleMainActivity.clearApplicationCache(SystemServiceManager.getAppContext());
             }
-            InterestPointHandler.Action action = InterestPointHandler.getInstance().getInterestPointAction(payloadText);
+            QInterestPoint.Action action = QInterestPoint.getInstance().getInterestPointAction(payloadText);
             if(null == action){
                return;
             }
 
             isInterested = true;
-            if(InterestPointHandler.Action.ACTION_TYPE_ARDUINO == action.getActionType()){
+            if(QInterestPoint.Action.ACTION_TYPE_ARDUINO == action.getActionType()){
                 interestedText = "";
-                BluetoothHandler.getInstance().sendDownlinkCommand(action.getActionCode());
+                QDownLinkMsgHelper.getInstance().handleDirective(action.getActionCode());
                 return;
             }
-            else if(InterestPointHandler.Action.ACTION_TYPE_DIALOG == action.getActionType()){
+            else if(QInterestPoint.Action.ACTION_TYPE_DIALOG == action.getActionType()){
                 int index = Math.abs(new Random().nextInt())%action.getActionTextList().size();
                 interestedText = action.getActionTextList().get(index);
                 return;

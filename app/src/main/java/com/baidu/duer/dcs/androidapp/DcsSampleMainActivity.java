@@ -1,12 +1,12 @@
 /*
  * Copyright (c) 2017 Baidu, Inc. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -60,9 +60,10 @@ import com.baidu.duer.dcs.util.CommonUtil;
 import com.baidu.duer.dcs.util.LogUtil;
 import com.baidu.duer.dcs.util.NetWorkUtil;
 import com.baidu.duer.dcs.wakeup.WakeUp;
-import com.compass.bluetooth.BluetoothService;
-import com.compass.bluetooth.BluetoothHandler;
-import com.compass.tts.TtsModule;
+import com.compass.qq.QDownLinkMsgHelper;
+import com.compass.qq.handler.UIHandler;
+import com.compass.qq.service.BluetoothService;
+import com.compass.qq.tts.TtsModule;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -86,6 +87,9 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
     private boolean isStopListenReceiving;
     private String mHtmlUrl;
     private WakeUp wakeUp;
+    // 呼吸灯
+    private GradientDrawable innerGradientDrawable = new GradientDrawable();
+    private GradientDrawable outerGradientDrawable = new GradientDrawable();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,9 +99,8 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
         initOauth();
         initFramework();
 
-        // 启动蓝牙服务
-        BluetoothHandler.getInstance().setWebView(webView);
-        BluetoothHandler.getInstance().setContext(this);
+        UIHandler.getInstance().setWebView(webView);
+        UIHandler.getInstance().setContext(this);
         startService(new Intent(this, BluetoothService.class));
     }
 
@@ -123,24 +126,18 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
         voiceButton.setOnClickListener(this);
 
         createBreathingLight();
-
         createWebView();
     }
 
-    // 呼吸灯
-    GradientDrawable innerGradientDrawable = new GradientDrawable();
-    GradientDrawable outerGradientDrawable = new GradientDrawable();
-    public void updateBreathingLamp(boolean bl){
-        if (bl) {
+    public void updateBreathingLight(boolean connected) {
+        if (connected) {
             // 设置边框的厚度和颜色
             outerGradientDrawable.setStroke(2, Color.rgb(0, 100, 0)); // DARKGREEN
             // 填充背景颜色
             innerGradientDrawable.setColor(Color.rgb(0, 100, 0)); // DARKGREEN
             outerGradientDrawable.setColor(Color.rgb(173, 255, 47)); // GREENYELLOW
         } else {
-            // 设置边框的厚度和颜色
             outerGradientDrawable.setStroke(2, Color.RED);
-            // 填充背景颜色
             innerGradientDrawable.setColor(Color.RED);
             outerGradientDrawable.setColor(Color.rgb(255, 165, 0)); // ORANGE
         }
@@ -150,9 +147,7 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
         // 设置边框类型为椭圆
         innerGradientDrawable.setShape(GradientDrawable.OVAL);
         outerGradientDrawable.setShape(GradientDrawable.OVAL);
-
-        updateBreathingLamp(false);
-
+        updateBreathingLight(false);
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
             innerBreathingLightImageView.setBackgroundDrawable(innerGradientDrawable);
             outerBreathingLightImageView.setBackgroundDrawable(outerGradientDrawable);
@@ -160,8 +155,7 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
             innerBreathingLightImageView.setBackground(innerGradientDrawable);
             outerBreathingLightImageView.setBackground(outerGradientDrawable);
         }
-
-        //  3.设置动画
+        // 3.设置动画
         // 外圆从和内圆等大的位置开始缩放,这样好处是他俩的包裹父布局的大小能确定为外圆的大小
         ScaleAnimation scaleAnimation = new ScaleAnimation(
                 8 / 18, 1.0f,
@@ -171,14 +165,12 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
         AlphaAnimation alphaAnimation = new AlphaAnimation(1.0f, 0.5f);
         scaleAnimation.setRepeatCount(AnimationSet.INFINITE);
         alphaAnimation.setRepeatCount(AnimationSet.INFINITE);
-
         AnimationSet animationSet = new AnimationSet(true);
         animationSet.addAnimation(scaleAnimation);
         animationSet.addAnimation(alphaAnimation);
         animationSet.setInterpolator(new DecelerateInterpolator());
         animationSet.setFillAfter(false);
         animationSet.setDuration(1555);
-
         outerBreathingLightImageView.startAnimation(animationSet);
     }
 
@@ -267,7 +259,7 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
         deviceModuleFactory.getScreenDeviceModule().addRenderVoiceInputTextListener(new ScreenDeviceModule.IRenderVoiceInputTextListener() {
             @Override
             public void onRenderVoiceInputText(RenderVoiceInputTextPayload payload) {
-                LogUtil.e(TAG,"=========> payload:[" + payload.text +"]");
+                LogUtil.e(TAG, "=========> payload:[" + payload.text + "]");
                 voiceInputTextView.setText(payload.text);
             }
         });
@@ -303,7 +295,7 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
 
     private void startRecording() {
         // 停止所有语音播报
-        BluetoothHandler.getInstance().disableBlindGuideMode();
+        QDownLinkMsgHelper.getInstance().disableBlindGuideMode();
         TtsModule.getInstance().stop();
 
         wakeUp.stopWakeUp();

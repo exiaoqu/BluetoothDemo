@@ -28,7 +28,6 @@ import com.baidu.duer.dcs.framework.message.Header;
 import com.baidu.duer.dcs.framework.message.MessageIdHeader;
 import com.baidu.duer.dcs.framework.message.Payload;
 import com.baidu.duer.dcs.systeminterface.IWebView;
-import com.baidu.duer.dcs.util.LogUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;

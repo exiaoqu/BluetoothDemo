@@ -29,7 +29,7 @@ import com.baidu.duer.dcs.framework.message.Header;
 import com.baidu.duer.dcs.framework.message.MessageIdHeader;
 import com.baidu.duer.dcs.systeminterface.IMediaPlayer;
 import com.baidu.duer.dcs.util.LogUtil;
-import com.compass.tts.TtsModule;
+import com.compass.qq.tts.TtsModule;
 
 import java.util.ArrayList;
 import java.util.Collections;
