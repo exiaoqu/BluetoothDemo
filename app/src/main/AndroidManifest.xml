@@ -42,7 +42,7 @@
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
 
-        <service android:name="com.compass.bluetooth.BluetoothService" />
+        <service android:name="com.compass.qq.service.BluetoothService" />
     </application>
 
 </manifest>
