@@ -9,7 +9,8 @@ import com.compass.qq.tts.TtsModule;
 public class QDownLinkMsgHelper {
     private QBluetoothDevice device = QBluetoothDevice.getInstance();
     private static QDownLinkMsgHelper instance = new QDownLinkMsgHelper();
-    public static QDownLinkMsgHelper getInstance (){
+
+    public static QDownLinkMsgHelper getInstance() {
         return instance;
     }
 
@@ -29,6 +30,8 @@ public class QDownLinkMsgHelper {
             case QInterestPoint.ACTION_CODE_STOP://停止板子所有行为，停止展示
                 disableBlindGuideMode();
                 TtsModule.getInstance().speak("已停止");
+                break;
+            default:
                 break;
         }
     }

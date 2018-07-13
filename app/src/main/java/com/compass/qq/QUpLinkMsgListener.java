@@ -23,7 +23,7 @@ public class QUpLinkMsgListener implements QMessageListener {
                 showText = (double) Math.round(Double.valueOf(args[1])) / 100 + "米";
                 break;
             case QInterestPoint.ACTION_CODE_HUMIDITY:
-                showText = "百分之" + Integer.valueOf(args[1]);
+                showText = Math.round(Double.valueOf(args[1]))+"%";
                 break;
             case QInterestPoint.ACTION_CODE_TEMPERATURE:
                 showText = Double.valueOf(args[1]) + "摄氏度";

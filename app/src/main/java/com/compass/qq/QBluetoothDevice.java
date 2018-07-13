@@ -111,10 +111,11 @@ public class QBluetoothDevice {
     }
 
     private void btReceive(BluetoothSocket socket) {
+        BufferedReader bf = null;
         try {
             inputStream = socket.getInputStream();
             setOutputStream(socket.getOutputStream());
-            BufferedReader bf = new BufferedReader(new InputStreamReader(inputStream));
+            bf = new BufferedReader(new InputStreamReader(inputStream));
             // 持续监听
             while (true) {
                 try {
@@ -124,18 +125,18 @@ public class QBluetoothDevice {
                         qMessageListener.receiveMsg(words);
                     }
                     if(words == null){
-                        btClose(socket, bf);
                         break;
                     }
                 } catch (IOException e) {
                     Log.e(QBluetoothDevice.class.getName(), "connection lost", e);
-                    btClose(socket, bf);
                     break;
                 }
             }
         } catch (IOException e) {
             Log.e(QBluetoothDevice.class.getName(), "get streams failed", e);
-            closeConnectedSocket(socket);
+        }
+        finally {
+            btClose(socket, bf);
         }
     }
 
@@ -147,7 +148,9 @@ public class QBluetoothDevice {
 
     private void closeConnectedSocket(BluetoothSocket socket) {
         try {
-            socket.close();
+            if(socket != null){
+                socket.close();
+            }
         } catch (IOException ex) {
             Log.e(QBluetoothDevice.class.getName(), "btClose() failed", ex);
         }
@@ -155,7 +158,9 @@ public class QBluetoothDevice {
 
     private void closeBufferReader(BufferedReader bf){
         try {
-            bf.close();
+            if(bf != null){
+                bf.close();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
