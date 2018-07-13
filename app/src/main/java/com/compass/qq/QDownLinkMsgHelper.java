@@ -7,6 +7,7 @@ import com.compass.qq.handler.UIHandler;
 import com.compass.qq.tts.TtsModule;
 
 public class QDownLinkMsgHelper {
+    private String TAG = QDownLinkMsgHelper.class.getName();
     private QBluetoothDevice device = QBluetoothDevice.getInstance();
     private static QDownLinkMsgHelper instance = new QDownLinkMsgHelper();
 
@@ -31,6 +32,12 @@ public class QDownLinkMsgHelper {
                 disableBlindGuideMode();
                 TtsModule.getInstance().speak("已停止");
                 break;
+//            case "L1":
+//                device.sendMessage("L1");
+//                break;
+//            case "L3":
+//                device.sendMessage("L3");
+//                break;
             default:
                 break;
         }
@@ -43,7 +50,7 @@ public class QDownLinkMsgHelper {
         @Override
         public void run() {
             UIHandler.getInstance().postDelayed(this, 3000);
-            Log.i(QBluetoothDevice.class.getName(), "timer call in main thread");
+            Log.i(TAG, "timer call in main thread");
             // Distance measurement
             device.sendMessage(QInterestPoint.ACTION_CODE_DISTANCE);
         }
@@ -51,7 +58,7 @@ public class QDownLinkMsgHelper {
 
     private void enableBlindGuideMode() {
         Message msg = UIHandler.getInstance().obtainMessage();
-        msg.what = 1;
+        msg.what = QMsgCode.MSG_ARDUINO_TEXT;
         msg.obj = "盲人模式已开启".getBytes();
         UIHandler.getInstance().sendMessage(msg);
         UIHandler.getInstance().post(runnableCode);
@@ -59,6 +66,7 @@ public class QDownLinkMsgHelper {
 
     public void disableBlindGuideMode() {
         TtsModule.getInstance().stop();
+        Log.d(TAG, "removeCallbacks(), remove the runnableCode.");
         UIHandler.getInstance().removeCallbacks(runnableCode);
     }
 }

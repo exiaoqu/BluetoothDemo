@@ -7,6 +7,7 @@ import android.os.Message;
 import android.util.Log;
 
 import com.compass.qq.handler.UIHandler;
+import com.compass.qq.tts.TtsModule;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -19,6 +20,7 @@ import java.util.UUID;
  * one bluetooth device
  */
 public class QBluetoothDevice {
+    private String TAG = QBluetoothDevice.class.getName();
     private String macAddress;
     private InputStream inputStream;
     private OutputStream outputStream;
@@ -50,7 +52,7 @@ public class QBluetoothDevice {
                 btReceive(socket);
             }
             catch (Exception e){
-                Log.e(QBluetoothDevice.class.getName(), "btReceive fail", e);
+                Log.e(TAG, "btReceive fail", e);
             }
         }
     }
@@ -71,7 +73,7 @@ public class QBluetoothDevice {
             try {
                 outputStream.write(message.getBytes());
             } catch (IOException e) {
-                Log.e(QBluetoothDevice.class.getName(), "send downlink message failed", e);
+                Log.e(TAG, "send downlink message failed", e);
             }
         }
     }
@@ -96,7 +98,7 @@ public class QBluetoothDevice {
                     socket.connect();
                     return socket;
                 } catch (IOException e) {
-                    Log.e(QBluetoothDevice.class.getName(), "create or btConnect socket failed", e);
+                    Log.e(TAG, "create or btConnect socket failed", e);
                     if(socket != null){
                         closeConnectedSocket(socket);
                     }
@@ -105,7 +107,7 @@ public class QBluetoothDevice {
             try {
                 Thread.sleep(5000);
             } catch (InterruptedException e) {
-                Log.i(QBluetoothDevice.class.getName(), "Thread.sleep() interrupted", e);
+                Log.i(TAG, "Thread.sleep() interrupted", e);
             }
         }
     }
@@ -120,7 +122,7 @@ public class QBluetoothDevice {
             while (true) {
                 try {
                     String words = bf.readLine();
-                    // 直接将 words 交给情景模型 SituationalModule 处理
+                    // 直接将 words 交给情景模型处理
                     if (words != null && words.length() > 0) {
                         qMessageListener.receiveMsg(words);
                     }
@@ -128,12 +130,12 @@ public class QBluetoothDevice {
                         break;
                     }
                 } catch (IOException e) {
-                    Log.e(QBluetoothDevice.class.getName(), "connection lost", e);
+                    Log.e(TAG, "connection lost", e);
                     break;
                 }
             }
         } catch (IOException e) {
-            Log.e(QBluetoothDevice.class.getName(), "get streams failed", e);
+            Log.e(TAG, "get streams failed", e);
         }
         finally {
             btClose(socket, bf);
@@ -152,7 +154,7 @@ public class QBluetoothDevice {
                 socket.close();
             }
         } catch (IOException ex) {
-            Log.e(QBluetoothDevice.class.getName(), "btClose() failed", ex);
+            Log.e(TAG, "btClose() failed", ex);
         }
     }
 

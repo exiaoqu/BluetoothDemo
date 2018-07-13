@@ -108,12 +108,6 @@ public class VoiceOutputDeviceModule extends BaseDeviceModule {
         }
     }
 
-    @Override
-    public void handleInterestDirective(String interestedText){
-        // 处理感兴趣的内容，语音提醒
-        TtsModule.getInstance().speak(interestedText);
-    }
-
     private IMediaPlayer.IMediaPlayerListener mediaPlayerListener = new IMediaPlayer.SimpleMediaPlayerListener() {
         @Override
         public void onPrepared() {

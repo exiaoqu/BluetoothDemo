@@ -10,30 +10,37 @@ import com.compass.qq.handler.UIHandler;
  */
 public class QUpLinkMsgListener implements QMessageListener {
 
+    private String TAG = QUpLinkMsgListener.class.getName();
+
     public void receiveMsg(String arduinoData) {
-        Log.i(QUpLinkMsgListener.class.getName(), String.format("receiving from Arduino: %s", arduinoData));
+        Log.i(TAG, String.format("receiving from Arduino: %s", arduinoData));
 
         String[] args = arduinoData.split("_");
         String command = args[0].toUpperCase();
 
         // 不同的模式展示不同的Text
         String showText = null;
-        switch (command) {
-            case QInterestPoint.ACTION_CODE_DISTANCE:
-                showText = (double) Math.round(Double.valueOf(args[1])) / 100 + "米";
-                break;
-            case QInterestPoint.ACTION_CODE_HUMIDITY:
-                showText = Math.round(Double.valueOf(args[1]))+"%";
-                break;
-            case QInterestPoint.ACTION_CODE_TEMPERATURE:
-                showText = Double.valueOf(args[1]) + "摄氏度";
-                break;
-            case QInterestPoint.ACTION_CODE_FIRE_ALARM:
-                QDownLinkMsgHelper.getInstance().disableBlindGuideMode();
-                showText = "火警警报";
-                break;
-            default:
-                break;
+        try{
+            switch (command) {
+                case QInterestPoint.ACTION_CODE_DISTANCE:
+                    showText = (double) Math.round(Double.valueOf(args[1])) / 100 + "米";
+                    break;
+                case QInterestPoint.ACTION_CODE_HUMIDITY:
+                    showText = (int) Math.round(Double.valueOf(args[1]))+"%";
+                    break;
+                case QInterestPoint.ACTION_CODE_TEMPERATURE:
+                    showText = Double.valueOf(args[1]) + "℃";
+                    break;
+                case QInterestPoint.ACTION_CODE_FIRE_ALARM:
+                    QDownLinkMsgHelper.getInstance().disableBlindGuideMode();
+                    showText = "火警警报";
+                    break;
+                default:
+                    break;
+            }
+        }catch(Exception ex){
+            Log.e(TAG, "exception was thrown when call receiveMsg()");
+            ex.printStackTrace();
         }
 
         if (null != showText) {

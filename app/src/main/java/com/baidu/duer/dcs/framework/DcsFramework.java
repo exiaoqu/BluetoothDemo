@@ -32,6 +32,8 @@ import com.baidu.duer.dcs.util.LogUtil;
 import com.baidu.duer.dcs.util.SystemServiceManager;
 import com.compass.qq.QDownLinkMsgHelper;
 import com.compass.qq.QInterestPoint;
+import com.compass.qq.handler.UIHandler;
+import com.compass.qq.tts.TtsModule;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -105,8 +107,8 @@ public class DcsFramework {
     }
 
     private void handleDirective(Directive directive) {
-        String namespace = directive.header.getNamespace();
         checkInterestPoint(directive);// 检测感兴趣点
+        String namespace = directive.header.getNamespace();
         try {
             BaseDeviceModule deviceModule = dispatchDeviceModules.get(namespace);
             if (deviceModule != null) {
@@ -150,8 +152,16 @@ public class DcsFramework {
                 return;
             }
             else if(QInterestPoint.Action.ACTION_TYPE_DIALOG == action.getActionType()){
-                int index = Math.abs(new Random().nextInt())%action.getActionTextList().size();
-                interestedText = action.getActionTextList().get(index);
+//                QDownLinkMsgHelper.getInstance().handleDirective("L1");
+                String firstElement = action.getActionTextList().get(0);
+                int index = Math.abs(new Random().nextInt())%(action.getActionTextList().size()-1)+1;
+                if(firstElement.contains("http")){
+                    interestedText = firstElement + " "+ action.getActionTextList().get(index);
+                }
+                else{
+                    interestedText = action.getActionTextList().get(index);
+                }
+
                 return;
             }
 
@@ -165,10 +175,10 @@ public class DcsFramework {
             Log.i(TAG,"interestedText：["+interestedText+"]");
             if ("HtmlView".equals(directive.header.getName())) {
                 // 展示的内容
-                deviceModule.handleInterestDirective(interestedText);
+                UIHandler.getInstance().showInWebView(interestedText);
             } else if ("Speak".equals(directive.header.getName())) {
                 // 说话的内容
-                deviceModule.handleInterestDirective(interestedText);
+                UIHandler.getInstance().speak(interestedText);
                 // clear
                 isInterested = false;
                 interestedText = "";

@@ -297,6 +297,8 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
         // 停止所有语音播报
         QDownLinkMsgHelper.getInstance().disableBlindGuideMode();
         TtsModule.getInstance().stop();
+        // 清空 webView 历史
+        webView.clearHistory();//清除历史记录
 
         wakeUp.stopWakeUp();
         isStopListenReceiving = true;

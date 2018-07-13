@@ -53,14 +53,6 @@ public abstract class BaseDeviceModule {
      */
     public abstract void handleDirective(Directive directive) throws HandleDirectiveException;
 
-    /**
-     * 处理感兴趣的内容
-     *
-     * @param str
-     */
-    public void handleInterestDirective(String str){
-    }
-
     public abstract void release();
 
     public String getNameSpace() {

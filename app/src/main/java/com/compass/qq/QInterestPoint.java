@@ -19,6 +19,8 @@ public class QInterestPoint {
     private Map<Pair<List<String>, List<String>>, Action> filterWordMap = new HashMap<>();
     private static Map<String, Action> interestPointMap = new HashMap<>();
 
+    private static final String URL_PREFIX = "http://47.94.250.178:8080";
+
     public static final String ACTION_CODE_STOP = "ST";
     public static final String ACTION_CODE_TEMPERATURE = "TE";  // 温度
     public static final String ACTION_CODE_HUMIDITY = "HU";     // 湿度
@@ -28,28 +30,36 @@ public class QInterestPoint {
 
     static {
         // ARDUINO
-        interestPointMap.put("停止", new Action(ACTION_CODE_STOP));
-        interestPointMap.put("停+下来", new Action(ACTION_CODE_STOP));
+        interestPointMap.put("停止-不-别", new Action(ACTION_CODE_STOP));
+        interestPointMap.put("停+下来-不-别", new Action(ACTION_CODE_STOP));
 
-        interestPointMap.put("测+温度", new Action(ACTION_CODE_TEMPERATURE));
-        interestPointMap.put("室内+温度", new Action(ACTION_CODE_TEMPERATURE));
+        interestPointMap.put("测+温度-不-别", new Action(ACTION_CODE_TEMPERATURE));
+        interestPointMap.put("室内+温度-不-别", new Action(ACTION_CODE_TEMPERATURE));
 
-        interestPointMap.put("测+湿度", new Action(ACTION_CODE_HUMIDITY));
-        interestPointMap.put("室内+湿度", new Action(ACTION_CODE_HUMIDITY));
+        interestPointMap.put("测+湿度-不-别", new Action(ACTION_CODE_HUMIDITY));
+        interestPointMap.put("室内+湿度-不-别", new Action(ACTION_CODE_HUMIDITY));
 
-        interestPointMap.put("测+距", new Action(ACTION_CODE_DISTANCE));
-        interestPointMap.put("测+距离", new Action(ACTION_CODE_DISTANCE));
-        interestPointMap.put("当前+距离", new Action(ACTION_CODE_DISTANCE));
+        interestPointMap.put("测+距-不-别", new Action(ACTION_CODE_DISTANCE));
+        interestPointMap.put("测+距离-不-别", new Action(ACTION_CODE_DISTANCE));
+        interestPointMap.put("当前+距离-不-别", new Action(ACTION_CODE_DISTANCE));
 
-        interestPointMap.put("盲人", new Action(ACTION_CODE_BLINDGUIDE));
-        interestPointMap.put("实时+测距", new Action(ACTION_CODE_BLINDGUIDE));
+        interestPointMap.put("盲人模式-不-别", new Action(ACTION_CODE_BLINDGUIDE));
+        interestPointMap.put("实时+测距-不-别", new Action(ACTION_CODE_BLINDGUIDE));
 
         // DIALOG
-        String[] helicopter = {"牛逼！", "吊炸天！", "你咋不上天,跟太阳肩并肩！"};
+        /**
+         * /html/imgPNG
+         * /html/imgGIF
+         * /html/imgVIDEO
+         */
+        String[] helicopter = {"", "牛逼！", "吊炸天！", "你咋不上天,跟太阳肩并肩！"};
         interestPointMap.put("直升机", new Action(helicopter));
 
-        String[] beauty = {"就是你！"};
+        String[] beauty = {URL_PREFIX+"/html/imgGIF", "是你是你还有你！","是你！","快看看有没有你！"};
         interestPointMap.put("最漂亮", new Action(beauty));
+
+        String[] video = {URL_PREFIX+"/html/imgVIDEO", "在这呢","快看"};
+        interestPointMap.put("我们的视频", new Action(video));
     }
 
     private static QInterestPoint instance = new QInterestPoint();
@@ -66,6 +76,7 @@ public class QInterestPoint {
 
     public Action getInterestPointAction(String words) {
         Log.d(TAG, "getInterestPointAction(), words:[" + words + "]");
+
         for (Map.Entry<Pair<List<String>, List<String>>, Action> entry : filterWordMap.entrySet()) {
             Pair<List<String>, List<String>> pair = entry.getKey();
 
@@ -73,14 +84,15 @@ public class QInterestPoint {
             List<String> excludeInterestPointList = pair.second;
 
             boolean flag = true;
-
-            if (flag) {
-                for (String excludeInterestPoint : excludeInterestPointList) {
-                    if (words.contains(excludeInterestPoint)) {
-                        flag = false;
-                        break;
-                    }
+            for (String excludeInterestPoint : excludeInterestPointList) {
+                if (words.contains(excludeInterestPoint)) {
+                    flag = false;
+                    break;
                 }
+            }
+
+            if(!flag){
+               continue;
             }
 
             for (String includeInterestPoint : includeInterestPointList) {

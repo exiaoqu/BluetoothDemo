@@ -92,64 +92,6 @@ public class ScreenDeviceModule extends BaseDeviceModule {
         }
     }
 
-    String html = "<html><head><meta charset=\"utf-8\"><meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><script src=\"http://duer.bdstatic.com/saiya/dcsview/main.e239b3.js\"></script><style></style></head><body>\n" +
-            "<div id=\"display\">\n" +
-            "<section data-from=\"server\" class=\"head p-box-out\">" +
-            "<div class=\"avatar\"></div>" +
-            "<div class=\"bubble-container\">" +
-            "<div class=\"bubble p-border text\">" +
-            "<div class=\"text-content text\">%s</div></div></div>" +
-            "</section>\n" +
-            "</div></body></html>";
-
-    String htmlFig = "<html>\n" +
-            "  <head>\n" +
-            "    <meta charset=\"utf-8\" />\n" +
-            "    <title>图片插入html 在线演示</title>\n" +
-            "  </head>\n" +
-            "  <body>\n" +
-            "    <div class=\"scale\">\n" +
-            "      <img src=\"http://47.94.250.178:8080/png/a.gif\" alt=\"\" /></p>\n" +
-            "    </div>\n" +
-            "    <p>%s</p>\n" +
-            "  </body>\n" +
-            "</html>";
-
-    String htmlFig2 = "<!DOCTYPE html>\n" +
-            "<html>\n" +
-            "  <head>\n" +
-            "    <meta charset=\"utf-8\">\n" +
-            "    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n" +
-            "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n" +
-            "    <script src=\"http://duer.bdstatic.com/saiya/dcsview/main.e239b3.js\"></script>\n" +
-            "    <style></style>\n" +
-            "  </head>\n" +
-            "  <body>\n" +
-            "    <div id=\"display\">\n" +
-            "      <section data-from=\"server\" class=\"head p-box-out\">\n" +
-            "        <div class=\"avatar\"></div>\n" +
-            "        <div class=\"bubble-container\">\n" +
-            "          <div class=\"bubble p-border text\">\n" +
-            "            <div class=\"text-content text\">%s</div>\n" +
-            "          </div>\n" +
-            "        </div>\n" +
-            "       <div class=\"scale\">\n" +
-            "          <img style=\"width:100%;\" src=\"http://47.94.250.178:8080/png/a.png\" alt=\"\"/>\n" +
-            "        </div>\n" +
-            "      </section>\n" +
-            "    </div>\n" +
-            "  </body>\n" +
-            "</html>";
-
-    @Override
-    public void handleInterestDirective(String interestedText) {
-        if (interestedText.equals("")) {
-            return;
-        }
-        webView.loadUrl("http://47.94.250.178:8080/html/imgVIDEO");
-//        webView.loadData(String.format(htmlFig, interestedText), "text/html; charset=UTF-8", null);
-    }
-
     private void handleRenderVoiceInputTextPayload(Payload payload) {
         RenderVoiceInputTextPayload textPayload = (RenderVoiceInputTextPayload) payload;
         fireRenderVoiceInputText(textPayload);
