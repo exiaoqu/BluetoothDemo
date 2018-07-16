@@ -23,6 +23,9 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.media.SoundPool;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
@@ -66,6 +69,7 @@ import com.compass.qq.service.BluetoothService;
 import com.compass.qq.tts.TtsModule;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -90,6 +94,8 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
     // 呼吸灯
     private GradientDrawable innerGradientDrawable = new GradientDrawable();
     private GradientDrawable outerGradientDrawable = new GradientDrawable();
+    private SoundPool soundPool;
+    private MediaPlayer mediaPlayer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,6 +104,10 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
         initView();
         initOauth();
         initFramework();
+
+        soundPool= new SoundPool(10, AudioManager.STREAM_SYSTEM,5);
+        soundPool.load(this,R.raw.dd,1);
+        mediaPlayer = MediaPlayer.create(this, R.raw.hh);
 
         UIHandler.getInstance().setWebView(webView);
         UIHandler.getInstance().setContext(this);
@@ -446,6 +456,28 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
             }
         }
         return deletedFiles;
+    }
+
+    public void playSound(){
+        soundPool.play(1,1, 1, 0, 0, 1);
+    }
+
+    public void playHonor(){
+//        mediaPlayer = new MediaPlayer();
+//        try {
+//            mediaPlayer.setDataSource("http://www.xxxx.com/yyyy.mp3");
+//            mediaPlayer.prepareAsync();
+//
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+        mediaPlayer.start();
+    }
+
+    public void stopHonor(){
+        if(mediaPlayer.isPlaying()){
+            mediaPlayer.stop();
+        }
     }
 
 }

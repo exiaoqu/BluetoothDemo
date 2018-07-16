@@ -33,7 +33,7 @@ import com.baidu.duer.dcs.util.SystemServiceManager;
 import com.compass.qq.QDownLinkMsgHelper;
 import com.compass.qq.QInterestPoint;
 import com.compass.qq.handler.UIHandler;
-import com.compass.qq.tts.TtsModule;
+import com.compass.qq.QMsgCode;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -151,7 +151,6 @@ public class DcsFramework {
             if(QInterestPoint.Action.ACTION_TYPE_ARDUINO == action.getActionType()){
                 interestedText = "";
                 QDownLinkMsgHelper.getInstance().handleDirective(action.getActionCode());
-                return;
             }
             else if(QInterestPoint.Action.ACTION_TYPE_DIALOG == action.getActionType()){
                 String firstElement = action.getActionTextList().get(0);
@@ -162,18 +161,24 @@ public class DcsFramework {
                 else{
                     interestedText = action.getActionTextList().get(index);
                 }
-
-                return;
+            }
+            else{
+                interestedText = "没收到具体命令！";
             }
 
-            interestedText = "没收到具体命令！";
+            if(payloadText.contains("最漂亮")){
+                UIHandler.getInstance().sendEmptyMessage(QMsgCode.PLAY_HONOR);
+            }
+            else {
+                UIHandler.getInstance().sendEmptyMessage(QMsgCode.STOP_HONOR);
+            }
         }
     }
 
     // 处理感兴趣的内容
     private void dealInterestPoint(BaseDeviceModule deviceModule, Directive directive) throws HandleDirectiveException {
         if (isInterested) {
-            Log.i(TAG,"interestedText：["+interestedText+"]");
+            Log.i(TAG,"interestedText：[" + interestedText + "]");
             if ("HtmlView".equals(directive.header.getName())) {
                 // 展示的内容
                 UIHandler.getInstance().showInWebView(interestedText);
@@ -186,7 +191,7 @@ public class DcsFramework {
             } else {
                 deviceModule.handleDirective(directive);
             }
-        } else if (!isInterested) {
+        } else{
             deviceModule.handleDirective(directive);
         }
     }

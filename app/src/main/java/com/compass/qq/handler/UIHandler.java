@@ -58,8 +58,23 @@ public class UIHandler extends Handler {
                 showInWebView(message);
                 break;
             case QMsgCode.MSG_ARDUINO_LAMP_STATE:
-                if(mainActivity != null){
+                if (mainActivity != null) {
                     mainActivity.updateBreathingLight((Boolean) msg.obj);
+                }
+                break;
+            case QMsgCode.PLAY_HONOR:
+                if (mainActivity != null) {
+                    mainActivity.playHonor();
+                }
+                break;
+            case QMsgCode.PLAY_SOUND:
+                if (mainActivity != null) {
+                    mainActivity.playSound();
+                }
+                break;
+            case QMsgCode.STOP_HONOR:
+                if (mainActivity != null) {
+                    mainActivity.stopHonor();
                 }
                 break;
             default:
