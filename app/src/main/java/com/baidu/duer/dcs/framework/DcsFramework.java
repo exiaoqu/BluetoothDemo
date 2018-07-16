@@ -135,6 +135,8 @@ public class DcsFramework {
     private void checkInterestPoint(Directive directive) {
         if ("ai.dueros.device_interface.screen".equals(directive.header.getNamespace()) && "RenderVoiceInputText".equals(directive.header.getName())
                 && directive.getPayload().toString().contains("type='FINAL'")) {
+            // 每次下发命令，间歇灯亮
+            QDownLinkMsgHelper.getInstance().handleDirective(QInterestPoint.ACTION_CODE_INTEEMITTENT_LAMP);
             payloadText = directive.getPayload().toString().split("'")[1];
             // 清理缓存
             if (payloadText.length() > 0) {
@@ -152,10 +154,9 @@ public class DcsFramework {
                 return;
             }
             else if(QInterestPoint.Action.ACTION_TYPE_DIALOG == action.getActionType()){
-//                QDownLinkMsgHelper.getInstance().handleDirective("L1");
                 String firstElement = action.getActionTextList().get(0);
                 int index = Math.abs(new Random().nextInt())%(action.getActionTextList().size()-1)+1;
-                if(firstElement.contains("http")){
+                if(null != firstElement && firstElement.contains("http")){
                     interestedText = firstElement + " "+ action.getActionTextList().get(index);
                 }
                 else{

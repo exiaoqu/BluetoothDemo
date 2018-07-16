@@ -87,7 +87,6 @@ public class UIHandler extends Handler {
         }else{
             TtsModule.getInstance().speak(msg);
         }
-//        QDownLinkMsgHelper.getInstance().handleDirective("L3");
     }
 
     public void setWebView(IWebView webView) {

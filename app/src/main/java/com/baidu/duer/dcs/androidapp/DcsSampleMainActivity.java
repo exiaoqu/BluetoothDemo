@@ -293,10 +293,25 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
         voiceButton.setText(getResources().getString(R.string.stop_record));
     }
 
+    private String blankPageHtml = "<html lang=\"zh-cmn-Hans\">\n" +
+            "  <head>\n" +
+            "    <meta charset=\"utf-8\" />\n" +
+            "    <meta name=\"viewport\" content=\"width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover\" />\n" +
+            "    <meta name=\"apple-mobile-web-app-capable\" content=\"yes\" />\n" +
+            "    <meta name=\"apple-mobile-web-status-bar-style\" content=\"block\" />\n" +
+            "    <meta name=\"fromat-detecition\" content=\"telephone=no\" />\n" +
+            "    <script src=\"http://duer.bdstatic.com/saiya/dcsview/main.e239b3.js\"></script>\n" +
+            "    <style></style>\n" +
+            "  </head>\n" +
+            "</html>";
+
     private void startRecording() {
         // 停止所有语音播报
         QDownLinkMsgHelper.getInstance().disableBlindGuideMode();
         TtsModule.getInstance().stop();
+
+        // 每次发起说话，清空webView的内容
+        webView.loadData(blankPageHtml, "text/html; charset=UTF-8", null);
         // 清空 webView 历史
         webView.clearHistory();//清除历史记录
 

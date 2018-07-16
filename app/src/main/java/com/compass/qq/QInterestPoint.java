@@ -27,6 +27,7 @@ public class QInterestPoint {
     public static final String ACTION_CODE_DISTANCE = "DI";     // 距离
     public static final String ACTION_CODE_BLINDGUIDE = "BL";   // 盲人
     public static final String ACTION_CODE_FIRE_ALARM = "FI";   // 火警
+    public static final String ACTION_CODE_INTEEMITTENT_LAMP = "L3"; // 间歇灯
 
     static {
         // ARDUINO
@@ -52,7 +53,7 @@ public class QInterestPoint {
          * /html/imgGIF
          * /html/imgVIDEO
          */
-        String[] helicopter = {"", "牛逼！", "吊炸天！", "你咋不上天,跟太阳肩并肩！"};
+        String[] helicopter = {null, "牛逼！", "吊炸天！", "你咋不上天,跟太阳肩并肩！"};
         interestPointMap.put("直升机", new Action(helicopter));
 
         String[] beauty = {URL_PREFIX+"/html/imgGIF", "是你是你还有你！","是你！","快看看有没有你！"};

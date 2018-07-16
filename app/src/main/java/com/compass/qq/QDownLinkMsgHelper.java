@@ -20,9 +20,10 @@ public class QDownLinkMsgHelper {
      */
     public void handleDirective(String command) {
         switch (command) {
+            case QInterestPoint.ACTION_CODE_INTEEMITTENT_LAMP: // 间歇等
             case QInterestPoint.ACTION_CODE_DISTANCE: //测距
             case QInterestPoint.ACTION_CODE_TEMPERATURE: //测温度
-            case QInterestPoint.ACTION_CODE_HUMIDITY:
+            case QInterestPoint.ACTION_CODE_HUMIDITY: // 湿度
                 device.sendMessage(command);
                 break;
             case QInterestPoint.ACTION_CODE_BLINDGUIDE://导盲模式，需要开启线程 持续发送命令
@@ -32,12 +33,6 @@ public class QDownLinkMsgHelper {
                 disableBlindGuideMode();
                 TtsModule.getInstance().speak("已停止");
                 break;
-//            case "L1":
-//                device.sendMessage("L1");
-//                break;
-//            case "L3":
-//                device.sendMessage("L3");
-//                break;
             default:
                 break;
         }
