@@ -23,7 +23,9 @@ public class QUpLinkMsgListener implements QMessageListener {
         try{
             switch (command) {
                 case QInterestPoint.ACTION_CODE_DISTANCE:
-                    showText = (double) Math.round(Double.valueOf(args[1])) / 100 + "米";
+                    double distance = (double) Math.round(Double.valueOf(args[1])) / 100;
+                    QDownLinkMsgHelper.getInstance().setDistance(distance);
+                    showText = distance + "米";
                     break;
                 case QInterestPoint.ACTION_CODE_HUMIDITY:
                     showText = (int) Math.round(Double.valueOf(args[1]))+"%";

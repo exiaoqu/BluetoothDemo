@@ -48,18 +48,14 @@ public class QInterestPoint {
         interestPointMap.put("实时+测距-不-别", new Action(ACTION_CODE_BLINDGUIDE));
 
         // DIALOG
-        /**
-         * /html/imgPNG
-         * /html/imgGIF
-         * /html/imgVIDEO
-         */
-        String[] helicopter = {null, "牛逼！", "吊炸天！", "你咋不上天,跟太阳肩并肩！"};
+        String[] helicopter = {null, null, "牛逼！", "吊炸天！", "你咋不上天,跟太阳肩并肩！"};
         interestPointMap.put("直升机", new Action(helicopter));
 
-        String[] beauty = {URL_PREFIX+"/html/imgGIF", "是你是你还有你！","是你！","快看看有没有你！"};
+        // index=1 的元素不能为 null
+        String[] beauty = {URL_PREFIX+"/html/imgGIF", "MUSIC", "是你是你还有你！","是你！","快看看有没有你！"};
         interestPointMap.put("最漂亮", new Action(beauty));
 
-        String[] video = {URL_PREFIX+"/html/imgVIDEO", "在这呢","快看"};
+        String[] video = {URL_PREFIX+"/html/imgVIDEO", null, "在这呢","快看"};
         interestPointMap.put("我们的视频", new Action(video));
     }
 

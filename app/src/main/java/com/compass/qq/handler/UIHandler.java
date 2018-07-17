@@ -53,7 +53,7 @@ public class UIHandler extends Handler {
         switch (msg.what) {
             case QMsgCode.MSG_ARDUINO_TEXT:
                 String message = new String((byte[]) msg.obj, Charset.defaultCharset());
-                Log.i(TAG, String.format("receiving uplink message: %s", message));
+                Log.i(TAG, "receiving uplink message: "+message);
                 TtsModule.getInstance().speak(message);
                 showInWebView(message);
                 break;
@@ -62,9 +62,10 @@ public class UIHandler extends Handler {
                     mainActivity.updateBreathingLight((Boolean) msg.obj);
                 }
                 break;
-            case QMsgCode.PLAY_HONOR:
+            case QMsgCode.PLAY_MUSIC:
                 if (mainActivity != null) {
-                    mainActivity.playHonor();
+                    // 可以根据 msg.obj 播放不同的音乐
+                    mainActivity.playMusic();
                 }
                 break;
             case QMsgCode.PLAY_SOUND:
@@ -72,9 +73,9 @@ public class UIHandler extends Handler {
                     mainActivity.playSound();
                 }
                 break;
-            case QMsgCode.STOP_HONOR:
+            case QMsgCode.STOP_MUSIC:
                 if (mainActivity != null) {
-                    mainActivity.stopHonor();
+                    mainActivity.stopPlayMusic();
                 }
                 break;
             default:
@@ -82,26 +83,50 @@ public class UIHandler extends Handler {
         }
     }
 
-    public void showInWebView(String msg) {
+    /**
+     * 处理组合数据
+     *
+     * @param msg
+     */
+    public void showInWebView(String[] msg) {
+        // index: 0:网址，1:音频标志，2:文本
+        Log.d(TAG, "showing in WebView: " + msg[2]);
+        if(msg[2].isEmpty()){
+            return;
+        }
+
+        if(null == msg[0] || msg[0].isEmpty()){
+            // 是一个文本
+            webView.loadData(String.format(WEB_VIEW_HTM_STRING, msg[2]), "text/html; charset=UTF-8", null);
+        }else if(null == msg[1] || msg[1].isEmpty()){
+            // 是一个视频
+            webView.loadUrl(msg[0]);
+        }else{
+            // 是一个图片
+            webView.loadUrl(msg[0]);
+            // 调用播放音乐
+            Message message = obtainMessage();
+            message.what = QMsgCode.PLAY_MUSIC;
+            // 预留位
+            // message.obj = msg[1].getBytes();
+            UIHandler.getInstance().sendMessage(message);
+        }
+    }
+    private void showInWebView(String msg) {
         Log.d(TAG, "showing in WebView: " + msg);
         if(msg.isEmpty()){
             return;
         }
-        // 判断是文本还是URL
-        if(msg.contains("http")){
-            webView.loadUrl(msg.split(" ")[0]);
-        }else{
-            webView.loadData(String.format(WEB_VIEW_HTM_STRING, msg), "text/html; charset=UTF-8", null);
-        }
+        webView.loadData(String.format(WEB_VIEW_HTM_STRING, msg), "text/html; charset=UTF-8", null);
     }
 
-    public void speak(String msg){
-        // 判断是文本还是URL
-        if(msg.contains("http")){
-            TtsModule.getInstance().speak(msg.split(" ")[1]);
-        }else{
-            TtsModule.getInstance().speak(msg);
-        }
+    /**
+     * 处理组合数据
+     *
+     * @param msg
+     */
+    public void speak(String[] msg){
+        TtsModule.getInstance().speak(msg[2]);
     }
 
     public void setWebView(IWebView webView) {

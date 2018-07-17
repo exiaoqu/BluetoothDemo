@@ -130,7 +130,7 @@ public class DcsFramework {
     }
 
     boolean isInterested = false;
-    String interestedText = null;
+    String[] interestedText = new String[3];
     String payloadText = null;
     private void checkInterestPoint(Directive directive) {
         if ("ai.dueros.device_interface.screen".equals(directive.header.getNamespace()) && "RenderVoiceInputText".equals(directive.header.getName())
@@ -142,6 +142,7 @@ public class DcsFramework {
             if (payloadText.length() > 0) {
                 DcsSampleMainActivity.clearApplicationCache(SystemServiceManager.getAppContext());
             }
+            // 检查是否匹配到感兴趣点
             QInterestPoint.Action action = QInterestPoint.getInstance().getInterestPointAction(payloadText);
             if(null == action){
                return;
@@ -149,28 +150,17 @@ public class DcsFramework {
 
             isInterested = true;
             if(QInterestPoint.Action.ACTION_TYPE_ARDUINO == action.getActionType()){
-                interestedText = "";
+                interestedText[2] = "";
                 QDownLinkMsgHelper.getInstance().handleDirective(action.getActionCode());
             }
             else if(QInterestPoint.Action.ACTION_TYPE_DIALOG == action.getActionType()){
-                String firstElement = action.getActionTextList().get(0);
-                int index = Math.abs(new Random().nextInt())%(action.getActionTextList().size()-1)+1;
-                if(null != firstElement && firstElement.contains("http")){
-                    interestedText = firstElement + " "+ action.getActionTextList().get(index);
-                }
-                else{
-                    interestedText = action.getActionTextList().get(index);
-                }
+                interestedText[0] = action.getActionTextList().get(0);
+                interestedText[1] = action.getActionTextList().get(1);
+                int index = Math.abs(new Random().nextInt())%(action.getActionTextList().size()-2)+2;
+                interestedText[2] = action.getActionTextList().get(index);
             }
             else{
-                interestedText = "没收到具体命令！";
-            }
-
-            if(payloadText.contains("最漂亮")){
-                UIHandler.getInstance().sendEmptyMessage(QMsgCode.PLAY_HONOR);
-            }
-            else {
-                UIHandler.getInstance().sendEmptyMessage(QMsgCode.STOP_HONOR);
+                interestedText[2] = "没收到具体命令！";
             }
         }
     }
@@ -187,7 +177,9 @@ public class DcsFramework {
                 UIHandler.getInstance().speak(interestedText);
                 // clear
                 isInterested = false;
-                interestedText = "";
+                for(int i =0; i<3; i++){
+                    interestedText[i] = null;
+                }
             } else {
                 deviceModule.handleDirective(directive);
             }

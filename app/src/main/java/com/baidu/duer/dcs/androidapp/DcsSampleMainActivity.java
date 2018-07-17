@@ -120,6 +120,9 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
         // 语音合成模块
         initPermission();
         TtsModule.getInstance().setContext(this);
+
+        playSound();
+//        playHonor();
     }
 
     private void initView() {
@@ -319,12 +322,12 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
         // 停止所有语音播报
         QDownLinkMsgHelper.getInstance().disableBlindGuideMode();
         TtsModule.getInstance().stop();
-
-        // 每次发起说话，清空webView的内容
+        // 停止播放音乐
+        stopPlayMusic();
+        // 每次发起说话，加载空的页面
         webView.loadData(blankPageHtml, "text/html; charset=UTF-8", null);
-        // 清空 webView 历史
-        webView.clearHistory();//清除历史记录
-
+        //清除历史记录
+        webView.clearHistory();
         wakeUp.stopWakeUp();
         isStopListenReceiving = true;
         deviceModuleFactory.getSystemProvider().userActivity();
@@ -459,22 +462,23 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
     }
 
     public void playSound(){
-        soundPool.play(1,1, 1, 0, 0, 1);
+        Log.i(TAG,"call playSound()");
+        soundPool.play(1,1, 1, 0, 0, 2);
     }
 
-    public void playHonor(){
-//        mediaPlayer = new MediaPlayer();
-//        try {
-//            mediaPlayer.setDataSource("http://www.xxxx.com/yyyy.mp3");
-//            mediaPlayer.prepareAsync();
-//
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+    public void playMusic(){
+        //        mediaPlayer = new MediaPlayer();
+        //        try {
+        //            mediaPlayer.setDataSource("http://www.xxxx.com/yyyy.mp3");
+        //            mediaPlayer.prepareAsync();
+        //
+        //        } catch (IOException e) {
+        //            e.printStackTrace();
+        //        }
         mediaPlayer.start();
     }
 
-    public void stopHonor(){
+    public void stopPlayMusic(){
         if(mediaPlayer.isPlaying()){
             mediaPlayer.stop();
         }
