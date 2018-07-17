@@ -213,6 +213,7 @@ public class TtsModule implements SpeechSynthesizerListener {
 
 
     public static void onDestroy() {
+        Log.i(TAG,"Call onDestroy()");
         if (speechSynthesizer != null) {
             speechSynthesizer.stop();
             speechSynthesizer.release();

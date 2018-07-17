@@ -47,13 +47,13 @@ public class QBluetoothDevice {
      */
     public void startListening(){
         while (true){
-            try{
+//            try{
                 BluetoothSocket socket = btConnect();
                 btReceive(socket);
-            }
-            catch (Exception e){
-                Log.e(TAG, "btReceive fail", e);
-            }
+//            }
+//            catch (Exception e){
+//                Log.e(TAG, "btReceive fail", e);
+//            }
         }
     }
 

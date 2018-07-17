@@ -404,6 +404,7 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
 
     @Override
     protected void onDestroy() {
+        Log.i(TAG,"Call onDestroy().");
         super.onDestroy();
 
         // 停止蓝牙服务
@@ -467,20 +468,18 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
     }
 
     public void playMusic(){
-        //        mediaPlayer = new MediaPlayer();
-        //        try {
-        //            mediaPlayer.setDataSource("http://www.xxxx.com/yyyy.mp3");
-        //            mediaPlayer.prepareAsync();
-        //
-        //        } catch (IOException e) {
-        //            e.printStackTrace();
-        //        }
         mediaPlayer.start();
     }
 
     public void stopPlayMusic(){
         if(mediaPlayer.isPlaying()){
-            mediaPlayer.stop();
+            try {
+                mediaPlayer.stop();
+                mediaPlayer.prepare();
+                mediaPlayer.seekTo(0);
+            } catch(IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 

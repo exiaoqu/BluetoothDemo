@@ -40,8 +40,8 @@ public class QDownLinkMsgHelper {
     }
 
     private final double referenceDistance = 2.0;
-    private volatile double distance = 1.7;
-    public synchronized void setDistance(double distance){
+    private double distance = 1.7;
+    public void setDistance(double distance){
         this.distance = distance;
     }
     private int triggerBuzzer(){

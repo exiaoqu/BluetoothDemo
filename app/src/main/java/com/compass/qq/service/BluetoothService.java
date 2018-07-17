@@ -14,7 +14,7 @@ import com.compass.qq.QBluetoothDevice;
  */
 public class BluetoothService extends Service {
     private static final String TAG = "BluetoothService";
-    private BluetoothThread bluetoothThread = new BluetoothThread();
+    private BluetoothThread bluetoothThread;
 
     @Nullable
     @Override
@@ -26,12 +26,14 @@ public class BluetoothService extends Service {
     public void onCreate() {
         Log.i(TAG, "onCreate()");
         super.onCreate();
+        Log.i(TAG, "start bluetoothThread");
+        bluetoothThread = new BluetoothThread();
+        bluetoothThread.start();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.i(TAG, "onStartCommand()");
-        bluetoothThread.start();
         return super.onStartCommand(intent, flags, startId);
     }
 
