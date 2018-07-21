@@ -172,7 +172,7 @@ public class QBluetoothDevice {
         this.outputStream = outputStream;
 
         Message msg = UIHandler.getInstance().obtainMessage();
-        msg.what = QMsgCode.MSG_ARDUINO_LAMP_STATE;
+        msg.what = Constants.MSG_ARDUINO_LAMP_STATE;
         msg.obj = (null != outputStream);
         UIHandler.getInstance().sendMessage(msg);
     }

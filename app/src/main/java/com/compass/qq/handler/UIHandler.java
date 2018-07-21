@@ -7,8 +7,7 @@ import android.util.Log;
 
 import com.baidu.duer.dcs.androidapp.DcsSampleMainActivity;
 import com.baidu.duer.dcs.systeminterface.IWebView;
-import com.compass.qq.QDownLinkMsgHelper;
-import com.compass.qq.QMsgCode;
+import com.compass.qq.Constants;
 import com.compass.qq.tts.TtsModule;
 import java.nio.charset.Charset;
 
@@ -51,29 +50,30 @@ public class UIHandler extends Handler {
         super.handleMessage(msg);
 
         switch (msg.what) {
-            case QMsgCode.MSG_ARDUINO_TEXT:
+            case Constants.MSG_ARDUINO_TEXT:
                 String message = new String((byte[]) msg.obj, Charset.defaultCharset());
                 Log.i(TAG, "receiving uplink message: "+message);
                 TtsModule.getInstance().speak(message);
                 showInWebView(message);
                 break;
-            case QMsgCode.MSG_ARDUINO_LAMP_STATE:
+            case Constants.MSG_ARDUINO_LAMP_STATE:
                 if (mainActivity != null) {
                     mainActivity.updateBreathingLight((Boolean) msg.obj);
                 }
                 break;
-            case QMsgCode.PLAY_MUSIC:
+            case Constants.PLAY_MUSIC:
                 if (mainActivity != null) {
                     // 可以根据 msg.obj 播放不同的音乐
-                    mainActivity.playMusic();
+                    String musicName = new String((byte[]) msg.obj, Charset.defaultCharset());
+                    mainActivity.playMusic(musicName);
                 }
                 break;
-            case QMsgCode.PLAY_SOUND:
+            case Constants.PLAY_SOUND:
                 if (mainActivity != null) {
                     mainActivity.playSound();
                 }
                 break;
-            case QMsgCode.STOP_MUSIC:
+            case Constants.STOP_MUSIC:
                 if (mainActivity != null) {
                     mainActivity.stopPlayMusic();
                 }
@@ -104,12 +104,7 @@ public class UIHandler extends Handler {
         }else{
             // 是一个图片
             webView.loadUrl(msg[0]);
-            // 调用播放音乐
-            Message message = obtainMessage();
-            message.what = QMsgCode.PLAY_MUSIC;
-            // 预留位
-            // message.obj = msg[1].getBytes();
-            UIHandler.getInstance().sendMessage(message);
+            sendMessage(Constants.PLAY_MUSIC,msg[1].getBytes() );
         }
     }
     private void showInWebView(String msg) {
@@ -121,12 +116,25 @@ public class UIHandler extends Handler {
     }
 
     /**
+     * send message from sub-thread to main-thread
+     *
+     * @param what
+     * @param obj
+     */
+    public void sendMessage(int what, Object obj){
+        Message message = obtainMessage();
+        message.what = what;
+        message.obj = obj;
+        sendMessage(message);
+    }
+
+    /**
      * 处理组合数据
      *
      * @param msg
      */
-    public void speak(String[] msg){
-        TtsModule.getInstance().speak(msg[2]);
+    public void speak(String msg){
+        TtsModule.getInstance().speak(msg);
     }
 
     public void setWebView(IWebView webView) {

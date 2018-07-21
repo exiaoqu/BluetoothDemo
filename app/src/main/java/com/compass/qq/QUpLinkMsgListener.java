@@ -1,8 +1,6 @@
 package com.compass.qq;
 
-import android.os.Message;
 import android.util.Log;
-
 import com.compass.qq.handler.UIHandler;
 
 /**
@@ -34,7 +32,10 @@ public class QUpLinkMsgListener implements QMessageListener {
                     showText = Double.valueOf(args[1]) + "℃";
                     break;
                 case QInterestPoint.ACTION_CODE_FIRE_ALARM:
+                    // 停止导盲
                     QDownLinkMsgHelper.getInstance().disableBlindGuideMode();
+                    // 停止播放音乐、视频
+                    UIHandler.getInstance().sendMessage(Constants.STOP_MUSIC,null);
                     showText = "火警警报";
                     break;
                 default:
@@ -46,10 +47,7 @@ public class QUpLinkMsgListener implements QMessageListener {
         }
 
         if (null != showText) {
-            Message msg = UIHandler.getInstance().obtainMessage();
-            msg.what = QMsgCode.MSG_ARDUINO_TEXT;
-            msg.obj = showText.getBytes();
-            UIHandler.getInstance().sendMessage(msg);
+            UIHandler.getInstance().sendMessage(Constants.MSG_ARDUINO_TEXT, showText.getBytes());
         }
     }
 }

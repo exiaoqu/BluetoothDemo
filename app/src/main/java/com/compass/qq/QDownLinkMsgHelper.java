@@ -1,8 +1,6 @@
 package com.compass.qq;
 
-import android.os.Message;
 import android.util.Log;
-
 import com.compass.qq.handler.UIHandler;
 import com.compass.qq.tts.TtsModule;
 
@@ -32,7 +30,7 @@ public class QDownLinkMsgHelper {
                 break;
             case QInterestPoint.ACTION_CODE_STOP://停止板子所有行为，停止展示
                 disableBlindGuideMode();
-                TtsModule.getInstance().speak("已停止");
+                UIHandler.getInstance().sendMessage(Constants.MSG_ARDUINO_TEXT,"已停止".getBytes());
                 break;
             default:
                 break;
@@ -40,12 +38,13 @@ public class QDownLinkMsgHelper {
     }
 
     private final double referenceDistance = 2.0;
-    private double distance = 1.7;
+    private double distance = 0;
+    //TODO, 在开启盲人模式时设置 distance = 0
     public void setDistance(double distance){
         this.distance = distance;
     }
     private int triggerBuzzer(){
-        if(distance <= referenceDistance ){
+        if(distance <= referenceDistance){
             return (int)Math.round(distance*10/referenceDistance);
         }
         return -1;
@@ -55,21 +54,20 @@ public class QDownLinkMsgHelper {
      * 导盲模式的定时任务
      */
     private Runnable runnableCode = new Runnable() {
-        int sendCommendAccount = 0;
+        int sendCommendAccount = 30;
         int triggerBuzzerAccount = 0;
-        int i = 0;
+        int i = 0, j = 0;
         @Override
         public void run() {
             UIHandler.getInstance().postDelayed(this, 100);
             Log.i(TAG, "timer call in main thread");
 
             // 发送命令计数
-            if(sendCommendAccount < 30){
-                sendCommendAccount++;
+            if(j < sendCommendAccount){
+                j++;
             }else{
-                // Distance measurement
                 device.sendMessage(QInterestPoint.ACTION_CODE_DISTANCE);
-                sendCommendAccount = 0;
+                j = 0;
             }
 
             // 触发蜂鸣器计数
@@ -78,26 +76,14 @@ public class QDownLinkMsgHelper {
                 i++;
             }else if(-1 != triggerBuzzerAccount){
                 // 处理蜂鸣器
-                sendMessage(QMsgCode.PLAY_SOUND, null);
+                UIHandler.getInstance().sendMessage(Constants.PLAY_SOUND, null);
                 i = 0;
             }
-
         }
     };
 
-    private void sendMessage(int what, Object obj){
-        Message msg = UIHandler.getInstance().obtainMessage();
-        msg.what = what;
-        msg.obj = obj;
-        UIHandler.getInstance().sendMessage(msg);
-    }
-
     private void enableBlindGuideMode() {
-//        Message msg = UIHandler.getInstance().obtainMessage();
-//        msg.what = QMsgCode.MSG_ARDUINO_TEXT;
-//        msg.obj = "盲人模式已开启".getBytes();
-//        UIHandler.getInstance().sendMessage(msg);
-        sendMessage(QMsgCode.MSG_ARDUINO_TEXT,"盲人模式已开启".getBytes());
+        UIHandler.getInstance().sendMessage(Constants.MSG_ARDUINO_TEXT,"盲人模式已开启".getBytes());
         UIHandler.getInstance().post(runnableCode);
     }
 

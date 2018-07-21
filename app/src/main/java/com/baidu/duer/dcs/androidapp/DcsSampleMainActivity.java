@@ -20,6 +20,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.AssetFileDescriptor;
+import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
@@ -28,6 +30,7 @@ import android.media.MediaPlayer;
 import android.media.SoundPool;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
@@ -62,7 +65,9 @@ import com.baidu.duer.dcs.systeminterface.IWakeUp;
 import com.baidu.duer.dcs.util.CommonUtil;
 import com.baidu.duer.dcs.util.LogUtil;
 import com.baidu.duer.dcs.util.NetWorkUtil;
+import com.baidu.duer.dcs.util.SystemServiceManager;
 import com.baidu.duer.dcs.wakeup.WakeUp;
+import com.compass.qq.Constants;
 import com.compass.qq.QDownLinkMsgHelper;
 import com.compass.qq.handler.UIHandler;
 import com.compass.qq.service.BluetoothService;
@@ -71,12 +76,13 @@ import com.compass.qq.tts.TtsModule;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * 主界面 activity
  */
 public class DcsSampleMainActivity extends Activity implements View.OnClickListener {
-    public static final String TAG = "DcsDemoActivity";
+    public static final String TAG = "DcsSampleMainActivity";
 
     private ImageView innerBreathingLightImageView;
     private ImageView outerBreathingLightImageView;
@@ -94,8 +100,10 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
     // 呼吸灯
     private GradientDrawable innerGradientDrawable = new GradientDrawable();
     private GradientDrawable outerGradientDrawable = new GradientDrawable();
+
     private SoundPool soundPool;
-    private MediaPlayer mediaPlayer;
+    MediaPlayer mMediaPlayer = new MediaPlayer();
+    HashMap<String,AssetFileDescriptor> musicMap = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,9 +113,16 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
         initOauth();
         initFramework();
 
+        // 语音合成模块
+        initPermission();
+        TtsModule.getInstance().setContext(this);
+
+        // 短声音
         soundPool= new SoundPool(10, AudioManager.STREAM_SYSTEM,5);
         soundPool.load(this,R.raw.dd,1);
-        mediaPlayer = MediaPlayer.create(this, R.raw.hh);
+
+        // 初始化音乐列表
+        loadMusic();
 
         UIHandler.getInstance().setWebView(webView);
         UIHandler.getInstance().setContext(this);
@@ -117,12 +132,9 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
     @Override
     public void onStart() {
         super.onStart();
-        // 语音合成模块
-        initPermission();
-        TtsModule.getInstance().setContext(this);
 
+        // 提示音
         playSound();
-//        playHonor();
     }
 
     private void initView() {
@@ -306,28 +318,15 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
         voiceButton.setText(getResources().getString(R.string.stop_record));
     }
 
-    private String blankPageHtml = "<html lang=\"zh-cmn-Hans\">\n" +
-            "  <head>\n" +
-            "    <meta charset=\"utf-8\" />\n" +
-            "    <meta name=\"viewport\" content=\"width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover\" />\n" +
-            "    <meta name=\"apple-mobile-web-app-capable\" content=\"yes\" />\n" +
-            "    <meta name=\"apple-mobile-web-status-bar-style\" content=\"block\" />\n" +
-            "    <meta name=\"fromat-detecition\" content=\"telephone=no\" />\n" +
-            "    <script src=\"http://duer.bdstatic.com/saiya/dcsview/main.e239b3.js\"></script>\n" +
-            "    <style></style>\n" +
-            "  </head>\n" +
-            "</html>";
-
     private void startRecording() {
         // 停止所有语音播报
         QDownLinkMsgHelper.getInstance().disableBlindGuideMode();
         TtsModule.getInstance().stop();
         // 停止播放音乐
         stopPlayMusic();
-        // 每次发起说话，加载空的页面
-        webView.loadData(blankPageHtml, "text/html; charset=UTF-8", null);
         //清除历史记录
         webView.clearHistory();
+
         wakeUp.stopWakeUp();
         isStopListenReceiving = true;
         deviceModuleFactory.getSystemProvider().userActivity();
@@ -415,6 +414,7 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
         wakeUp.stopWakeUp();
         wakeUp.releaseWakeUp();
 
+        mMediaPlayer.release();
         TtsModule.onDestroy();
 
         if (dcsFramework != null) {
@@ -467,16 +467,34 @@ public class DcsSampleMainActivity extends Activity implements View.OnClickListe
         soundPool.play(1,1, 1, 0, 0, 2);
     }
 
-    public void playMusic(){
-        mediaPlayer.start();
+
+    private void loadMusic(){
+        musicMap.put(Constants.MUSIC_NJY,this.getResources().openRawResourceFd(R.raw.njy));
+        musicMap.put(Constants.MODEL_NRH,this.getResources().openRawResourceFd(R.raw.nvrenhua));
+    }
+
+    public void playMusic(String name){
+        Log.d(TAG,"播放歌曲："+name);
+
+        mMediaPlayer.reset();
+        AssetFileDescriptor afd1 = musicMap.get(name);
+
+        try{
+            mMediaPlayer.setDataSource(afd1.getFileDescriptor(),afd1.getStartOffset(), afd1.getLength());
+            mMediaPlayer.prepare();
+        }catch(Exception ex){
+            ex.printStackTrace();
+        }
+
+        mMediaPlayer.start();
     }
 
     public void stopPlayMusic(){
-        if(mediaPlayer.isPlaying()){
+        if(mMediaPlayer.isPlaying()){
             try {
-                mediaPlayer.stop();
-                mediaPlayer.prepare();
-                mediaPlayer.seekTo(0);
+                mMediaPlayer.stop();
+                mMediaPlayer.prepare();
+                mMediaPlayer.seekTo(0);
             } catch(IOException e) {
                 e.printStackTrace();
             }

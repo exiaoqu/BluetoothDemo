@@ -33,7 +33,6 @@ import com.baidu.duer.dcs.util.SystemServiceManager;
 import com.compass.qq.QDownLinkMsgHelper;
 import com.compass.qq.QInterestPoint;
 import com.compass.qq.handler.UIHandler;
-import com.compass.qq.QMsgCode;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -107,7 +106,8 @@ public class DcsFramework {
     }
 
     private void handleDirective(Directive directive) {
-        checkInterestPoint(directive);// 检测感兴趣点
+        // 检测感兴趣点
+        checkInterestPoint(directive);
         String namespace = directive.header.getNamespace();
         try {
             BaseDeviceModule deviceModule = dispatchDeviceModules.get(namespace);
@@ -170,11 +170,9 @@ public class DcsFramework {
         if (isInterested) {
             Log.i(TAG,"interestedText：[" + interestedText + "]");
             if ("HtmlView".equals(directive.header.getName())) {
-                // 展示的内容
                 UIHandler.getInstance().showInWebView(interestedText);
             } else if ("Speak".equals(directive.header.getName())) {
-                // 说话的内容
-                UIHandler.getInstance().speak(interestedText);
+                UIHandler.getInstance().speak(interestedText[2]);
                 // clear
                 isInterested = false;
                 for(int i =0; i<3; i++){

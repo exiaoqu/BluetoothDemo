@@ -100,19 +100,22 @@ public class TtsModule implements SpeechSynthesizerListener {
     }
 
     private void setOnlineTtsParams(SpeechSynthesizer speechSynthesizer) {
-        // 参数选填, 不填则默认值生效
-
         // 设置在线发声音人： 0 普通女声（默认） 1 普通男声 2 特别男声 3 情感男声<度逍遥> 4 情感儿童声<度丫丫>
-        speechSynthesizer.setParam(SpeechSynthesizer.PARAM_SPEAKER, "3");
-
+        speechSynthesizer.setParam(SpeechSynthesizer.PARAM_SPEAKER, "0");
         // 设置合成的音量，0-9 ，默认 5
-        speechSynthesizer.setParam(SpeechSynthesizer.PARAM_VOLUME, "5");
-
+        speechSynthesizer.setParam(SpeechSynthesizer.PARAM_VOLUME, "6");
         // 设置合成的语速，0-9 ，默认 5
         speechSynthesizer.setParam(SpeechSynthesizer.PARAM_SPEED, "5");
-
         // 设置合成的语调，0-9 ，默认 5
         speechSynthesizer.setParam(SpeechSynthesizer.PARAM_PITCH, "5");
+
+        // 设置Mix模式的合成策略，默认MIX_MODE_DEFAULT, 其它参数请参考文档
+        speechSynthesizer.setParam(SpeechSynthesizer.PARAM_MIX_MODE, SpeechSynthesizer.MIX_MODE_HIGH_SPEED_NETWORK);
+        // 设置音频格式,默认AUDIO_ENCODE_AMR
+        speechSynthesizer.setParam(SpeechSynthesizer.PARAM_AUDIO_ENCODE, SpeechSynthesizer.AUDIO_ENCODE_AMR);
+        // 设置比特率,默认AUDIO_BITRATE_AMR_15K
+        speechSynthesizer.setParam(SpeechSynthesizer.PARAM_AUDIO_RATE, SpeechSynthesizer.AUDIO_BITRATE_AMR_12K65);
+
 
         // 该参数设置为TtsMode.MIX生效。即纯在线模式不生效。
         // MIX_MODE_DEFAULT 默认 ，wifi状态下使用在线，非wifi离线。在线状态下，请求超时6s自动转离线
